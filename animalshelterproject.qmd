@@ -1,0 +1,1074 @@
+---
+title: "Animal Shelter Data Work"
+---
+
+Many animal shelters struggle with overpopulation and adoption rates. Only about half of the animals that are taken into shelters are adopted out per year.
+
+How can collecting, visualizing, and analyzing data from animal shelters help them to gain useful insights into adoption rates and marketing strategies?
+
+```{r}
+library(ggplot2)
+library(dplyr)
+```
+
+```{r}
+adoption_dat <- read.csv("aac_intakes_outcomes.csv")
+```
+
+```{r}
+library(dplyr)
+adoptions <- adoption_dat %>%
+  filter(adoption_dat$outcome_type == "Adoption")
+```
+
+```{r}
+breed_counts <- table(adoptions$breed)
+```
+
+```{r}
+breed_counts_df <- data.frame(
+  breed = names(breed_counts),
+  count = as.vector(breed_counts)
+)
+```
+
+```{r}
+library(dplyr)
+
+# Define vectors of breeds to combine
+husky_breeds <- c("Alaskan Husky", "Alaskan Husky Mix","Alaskan Husky/Border Collie", "Alaskan Husky/German Shepherd","Alaskan Husky/Labrador Retriever")
+airedale_breeds <- c("Airedale Terrier Mix","Airedale Terrier/Irish Terrier","Airedale Terrier/Labrador Retriever","Airedale Terrier/Miniature Schnauzer","Airedale Terrier/Otterhound")
+akita_breeds <- c("Akita","Akita Mix","Akita/Australian Cattle Dog","Akita/Border Collie","Akita/German Shepherd","Akita/Siberian Husky")
+alaskan_malamute_breeds <- c("Alaskan Malamute Mix","Alaskan Malamute/Akita","Alaskan Malamute/Australian Kelpie","Alaskan Malamute/Border Collie","Alaskan Malamute/German Shepherd","Alaskan Malamute/Labrador Retriever")
+american_bulldog_breeds <-c("American Bulldog","American Bulldog Mix","American Bulldog/Basset Hound","American Bulldog/Blue Lacy","American Bulldog/Dalmatian","American Bulldog/English Bulldog","American Bulldog/Labrador Retriever","American Bulldog/Mastiff")
+anatol_shepherd_breeds <-c("Anatol Shepherd","Anatol Shepherd Mix","Anatol Shepherd/Akita",
+"Anatol Shepherd/Black Mouth Cur","Anatol Shepherd/Border Collie","Anatol Shepherd/Catahoula", "Anatol Shepherd/Collie Rough","Anatol Shepherd/German Shepherd","Anatol Shepherd/German Shorthair Pointer","Anatol Shepherd/Great Pyrenees","Anatol Shepherd/Labrador Retriever","Anatol Shepherd/Mastiff","Anatol Shepherd/Pit Bull","Anatol Shepherd/Redbone Hound")
+australian_cattle_breeds <-c("Australian Cattle Dog","Australian Cattle Dog Mix","Australian Cattle Dog/Alaskan Husky","Australian Cattle Dog/American Pit Bull Terrier","Australian Cattle Dog/American Staffordshire Terrier","Australian Cattle Dog/Anatol Shepherd","Australian Cattle Dog/Australian Kelpie","Australian Cattle Dog/Australian Shepherd","Australian Cattle Dog/Basenji","Australian Cattle Dog/Beagle","Australian Cattle Dog/Belgian Malinois","Australian Cattle Dog/Border Collie","Australian Cattle Dog/Boston Terrier","Australian Cattle Dog/Boxer","Australian Cattle Dog/Cardigan Welsh Corgi","Australian Cattle Dog/Catahoula","Australian Cattle Dog/Chihuahua Shorthair","Australian Cattle Dog/Chinese Sharpei","Australian Cattle Dog/Collie Rough","Australian Cattle Dog/Collie Smooth","Australian Cattle Dog/Dalmatian","Australian Cattle Dog/German Shepherd","Australian Cattle Dog/German Shorthair Pointer","Australian Cattle Dog/Great Pyrenees","Australian Cattle Dog/Jack Russell Terrier","Australian Cattle Dog/Labrador Retriever","Australian Cattle Dog/Parson Russell Terrier","Australian Cattle Dog/Pembroke Welsh Corgi","Australian Cattle Dog/Pit Bull","Australian Cattle Dog/Plott Hound","Australian Cattle Dog/Pointer","Australian Cattle Dog/Pug","Australian Cattle Dog/Queensland Heeler","Australian Cattle Dog/Rat Terrier","Australian Cattle Dog/Rhod Ridgeback","Australian Cattle Dog/Siberian Husky","Australian Cattle Dog/Staffordshire","Australian Cattle Dog/Vizsla","Australian Cattle Dog/Whippet")
+australian_kelpie_breeds <-c("Australian Kelpie","Australian Kelpie Mix","Australian Kelpie/Alaskan Husky","Australian Kelpie/American Pit Bull Terrier","Australian Kelpie/Australian Cattle Dog","Australian Kelpie/Australian Shepherd","Australian Kelpie/Beagle","Australian Kelpie/Blue Lacy","Australian Kelpie/Border Collie","Australian Kelpie/Bull Terrier","Australian Kelpie/Chihuahua Shorthair","Australian Kelpie/Dachshund","Australian Kelpie/Finnish Spitz","Australian Kelpie/German Shepherd","Australian Kelpie/Labrador Retriever","Australian Kelpie/Miniature Pinscher","Australian Kelpie/Pit Bull","Australian Kelpie/Rat Terrier","Australian Kelpie/Shiba Inu","Australian Kelpie/Whippet")
+australian_shepherd_breeds <-c("Australian Shepherd", "Australian Shepherd Mix", "Australian Shepherd/Alaskan Malamute","Australian Shepherd/Anatol Shepherd","Australian Shepherd/Australian Cattle Dog","Australian Shepherd/Australian Kelpie","Australian Shepherd/Beagle","Australian Shepherd/Border Collie","Australian Shepherd/Boxer","Australian Shepherd/Cardigan Welsh Corgi","Australian Shepherd/Catahoula","Australian Shepherd/Chihuahua Shorthair","Australian Shepherd/Chow Chow","Australian Shepherd/Cocker Spaniel","Australian Shepherd/Collie Rough","Australian Shepherd/Collie Smooth","Australian Shepherd/Dachshund","Australian Shepherd/German Shepherd","Australian Shepherd/Greyhound","Australian Shepherd/Jack Russell Terrier","Australian Shepherd/Labrador Retriever","Australian Shepherd/Parson Russell Terrier","Australian Shepherd/Plott Hound","Australian Shepherd/Queensland Heeler","Australian Shepherd/Rhod Ridgeback","Australian Shepherd/Rottweiler","Australian Shepherd/Siberian Husky")
+basenji_breeds <-c("Basenji Mix","Basenji/Australian Cattle Dog","Basenji/Chihuahua Longhair","Basenji/Chihuahua Shorthair","Basenji/Jack Russell Terrier","Basenji/Rhod Ridgeback")
+basset_hound_breeds <-c("Basset Hound","Basset Hound Mix","Basset Hound/Australian Cattle Dog","Basset Hound/Australian Shepherd","Basset Hound/Beagle","Basset Hound/Beauceron","Basset Hound/Black/Tan Hound","Basset Hound/Border Collie","Basset Hound/Chinese Sharpei","Basset Hound/French Bulldog","Basset Hound/Golden Retriever","Basset Hound/Labrador Retriever","Basset Hound/Pit Bull","Basset Hound/Pointer")
+beagle_breeds <-c("Beagle","Beagle Mix","Beagle/Australian Cattle Dog","Beagle/Australian Kelpie","Beagle/Basset Hound","Beagle/Black Mouth Cur","Beagle/Boston Terrier","Beagle/Boxer","Beagle/Cardigan Welsh Corgi","Beagle/Chihuahua Longhair","Beagle/Chihuahua Shorthair","Beagle/Chinese Sharpei","Beagle/Cocker Spaniel","Beagle/Manchester Terrier","Beagle/Mastiff","Beagle/Miniature Pinscher","Beagle/Pit Bull","Beagle/Plott Hound","Beagle/Pointer","Beagle/Pug","Beagle/Queensland Heeler","Beagle/Rat Terrier","Beagle/Staffordshire","Beagle/Treeing Walker Coonhound","Beagle/Vizsla","Beagle/Whippet")
+black_mouth_cur_breeds <-c("Black Mouth Cur","Black Mouth Cur Mix","Black Mouth Cur/Australian Cattle Dog","Black Mouth Cur/Basset Hound","Black Mouth Cur/Blue Lacy","Black Mouth Cur/Boxer","Black Mouth Cur/Catahoula","Black Mouth Cur/Dachshund","Black Mouth Cur/Labrador Retriever","Black Mouth Cur/Mastiff","Black Mouth Cur/Pit Bull","Black Mouth Cur/Siberian Husky","Black Mouth Cur/Staffordshire")
+black_tan_hound_breeds <-c("Black/Tan Hound","Black/Tan Hound Mix","Black/Tan Hound/Beagle","Black/Tan Hound/Great Dane","Black/Tan Hound/Labrador Retriever")
+blue_lacy_breeds <-c("Blue Lacy","Blue Lacy Mix","Blue Lacy/Australian Cattle Dog","Blue Lacy/Australian Kelpie","Blue Lacy/Beagle","Blue Lacy/Black Mouth Cur","Blue Lacy/Labrador Retriever","Blue Lacy/Pit Bull","Blue Lacy/Pointer","Blue Lacy/Weimaraner")
+bluetick_hound_breeds <-c("Bluetick Hound","Bluetick Hound Mix","Bluetick Hound/Australian Cattle Dog","Bluetick Hound/Australian Kelpie","Bluetick Hound/Treeing Walker Coonhound")
+border_collie_breeds <-c("Border Collie","Border Collie Mix","Border Collie/Akita","Border Collie/Anatol Shepherd","Border Collie/Australian Cattle Dog","Border Collie/Australian Shepherd","Border Collie/Beagle","Border Collie/Bernese Mountain Dog","Border Collie/Boxer","Border Collie/Brittany","Border Collie/Bull Terrier","Border Collie/Canaan Dog","Border Collie/Catahoula","Border Collie/Chow Chow","Border Collie/Dachshund","Border Collie/Doberman Pinsch","Border Collie/English Pointer","Border Collie/German Shepherd","Border Collie/German Shorthair Pointer","Border Collie/Great Dane","Border Collie/Great Pyrenees","Border Collie/Greyhound","Border Collie/Jack Russell Terrier","Border Collie/Labrador Retriever","Border Collie/Mastiff","Border Collie/Miniature Pinscher","Border Collie/Parson Russell Terrier","Border Collie/Pit Bull","Border Collie/Pointer","Border Collie/Queensland Heeler","Border Collie/Staffordshire","Border Collie/Standard Schnauzer","Border Collie/Whippet")
+border_terrier_breeds <-c("Border Terrier","Border Terrier Mix","Border Terrier/Affenpinscher","Border Terrier/Cardigan Welsh Corgi","Border Terrier/Chihuahua Shorthair","Border Terrier/Dachshund","Border Terrier/Dachshund Wirehair","Border Terrier/Miniature Poodle","Border Terrier/Rat Terrier","Border Terrier/Shih Tzu","Border Terrier/Soft Coated Wheaten Terrier","Border Terrier/Yorkshire Terrier")
+boston_terrier_breeds <-c("Boston Terrier","Boston Terrier Mix","Boston Terrier/Chihuahua Shorthair","Boston Terrier/Dachshund","Boston Terrier/Pointer","Boston Terrier/Pug","Boston Terrier/Rat Terrier")
+boxer_breeds <-c("Boxer","Boxer Mix","Boxer/American Bulldog","Boxer/American Pit Bull Terrier","Boxer/American Staffordshire Terrier","Boxer/Australian Cattle Dog","Boxer/Beagle","Boxer/Black Mouth Cur","Boxer/Border Collie","Boxer/Boston Terrier","Boxer/Bulldog","Boxer/Bullmastiff","Boxer/Catahoula","Boxer/Chinese Sharpei","Boxer/Chow Chow","Boxer/English Bulldog","Boxer/Great Dane","Boxer/Great Pyrenees","Boxer/Greyhound","Boxer/Labrador Retriever","Boxer/Mastiff","Boxer/Miniature Poodle","Boxer/Neapolitan Mastiff","Boxer/Pit Bull","Boxer/Plott Hound","Boxer/Pointer","Boxer/Redbone Hound","Boxer/Rhod Ridgeback","Boxer/Staffordshire")
+bruss_griffon_breeds <-c("Bruss Griffon Mix","Bruss Griffon/Cairn Terrier","Bruss Griffon/Chihuahua Shorthair","Bruss Griffon/Dachshund","Bruss Griffon/Maltese","Bruss Griffon/Pug","Bruss Griffon/Yorkshire Terrier")
+bull_terrier_breeds <-c("Bull Terrier","Bull Terrier Miniature Mix","Bull Terrier Mix","Bull Terrier/Australian Kelpie","Bull Terrier/Boxer","Bull Terrier/Jack Russell Terrier")
+bulldog_breeds <-c("Bulldog","Bulldog Mix","Bulldog/Australian Cattle Dog","Bulldog/Boston Terrier","Bulldog/Labrador Retriever")
+cairn_terrier_breeds <-c("Cairn Terrier","Cairn Terrier Mix","Cairn Terrier/Affenpinscher","Cairn Terrier/Border Collie","Cairn Terrier/Border Terrier","Cairn Terrier/Chihuahua Longhair","Cairn Terrier/Chihuahua Shorthair","Cairn Terrier/Dachshund","Cairn Terrier/Italian Greyhound","Cairn Terrier/Miniature Poodle","Cairn Terrier/Miniature Schnauzer","Cairn Terrier/Scottish Terrier","Cairn Terrier/Yorkshir","Cardigan Welsh Corgi Mix","Cardigan Welsh Corgi/American Eskimo","Cardigan Welsh Corgi/Australian Cattle Dog","Cardigan Welsh Corgi/Australian Kelpie","Cardigan Welsh Corgi/Australian Shepherd","Cardigan Welsh Corgi/Beagle","Cardigan Welsh Corgi/Cairn Terrier","Cardigan Welsh Corgi/Cardigan Welsh Corgi","Cardigan Welsh Corgi/Chihuahua Longhair","Cardigan Welsh Corgi/Chihuahua Shorthair","Cardigan Welsh Corgi/Cocker Spaniel","Cardigan Welsh Corgi/Dachshund","Cardigan Welsh Corgi/English Setter","Cardigan Welsh Corgi/German Shepherd","Cardigan Welsh Corgi/Jack Russell Terrier","Cardigan Welsh Corgi/Miniature Pinscher","Cardigan Welsh Corgi/Pit Bull","Cardigan Welsh Corgi/Pointer")
+catahoula_breeds <-c("Catahoula","Catahoula Mix","Catahoula/Alaskan Husky","Catahoula/American Bulldog","Catahoula/American Pit Bull Terrier","Catahoula/Anatol Shepherd","Catahoula/Australian Cattle Dog","Catahoula/Australian Shepherd","Catahoula/Beagle","Catahoula/Boxer","Catahoula/Cardigan Welsh Corgi","Catahoula/Chinese Sharpei","Catahoula/English Coonhound","Catahoula/German Shepherd","Catahoula/Great Dane","Catahoula/Irish Wolfhound","Catahoula/Labrador Retriever","Catahoula/Pit Bull","Catahoula/Plott Hound","Catahoula/Pointer","Catahoula/Rottweiler","Catahoula/Siberian Husky","Catahoula/Staffordshire","Catahoula/Whippet")
+chihuahua_longhair_breeds <-c("Chihuahua Longhair","Chihuahua Longhair Mix","Chihuahua Longhair/Cairn Terrier","Chihuahua Longhair/Cardigan Welsh Corgi","Chihuahua Longhair/Chihuahua Shorthair","Chihuahua Longhair/Cocker Spaniel","Chihuahua Longhair/Dachshund","Chihuahua Longhair/Italian Greyhound","Chihuahua Longhair/Jack Russell Terrier","Chihuahua Longhair/Maltese","Chihuahua Longhair/Norfolk Terrier","Chihuahua Longhair/Papillon","Chihuahua Longhair/Pekingese","Chihuahua Longhair/Pomeranian","Chihuahua Longhair/Pug","Chihuahua Longhair/West Highland","Chihuahua Longhair/Yorkshire Terrier")
+chihuahua_shorthair_breeds <-c("Chihuahua Shorthair","Chihuahua Shorthair Mix","Chihuahua Shorthair/Affenpinscher","Chihuahua Shorthair/Australian Terrier","Chihuahua Shorthair/Basenji","Chihuahua Shorthair/Beagle","Chihuahua Shorthair/Border Collie","Chihuahua Shorthair/Border Terrier","Chihuahua Shorthair/Boston Terrier","Chihuahua Shorthair/Boxer","Chihuahua Shorthair/Cairn Terrier","Chihuahua Shorthair/Cardigan Welsh Corgi","Chihuahua Shorthair/Catahoula","Chihuahua Shorthair/Cavalier Span","Chihuahua Shorthair/Chinese Sharpei","Chihuahua Shorthair/Cirneco","Chihuahua Shorthair/Dachshund","Chihuahua Shorthair/Dachshund Wirehair","Chihuahua Shorthair/French Bulldog","Chihuahua Shorthair/German Shepherd","Chihuahua Shorthair/Italian Greyhound","Chihuahua Shorthair/Jack Russell Terrier","Chihuahua Shorthair/Manchester Terrier","Chihuahua Shorthair/Miniature Pinscher","Chihuahua Shorthair/Miniature Poodle","Chihuahua Shorthair/Miniature Schnauzer","Chihuahua Shorthair/Pekingese","Chihuahua Shorthair/Pembroke Welsh Corgi","Chihuahua Shorthair/Pomeranian","Chihuahua Shorthair/Pug","Chihuahua Shorthair/Queensland Heeler","Chihuahua Shorthair/Rat Terrier","Chihuahua Shorthair/Schipperke","Chihuahua Shorthair/Shiba Inu","Chihuahua Shorthair/Shih Tzu","Chihuahua Shorthair/Smooth Fox Terrier","Chihuahua Shorthair/Toy Fox Terrier","Chihuahua Shorthair/Welsh Terrier","Chihuahua Shorthair/Whippet","Chihuahua Shorthair/Wire Hair Fox Terrier","Chihuahua Shorthair/Yorkshire Terrier")
+chinese_sharpei_breeds <-c("Chinese Sharpei","Chinese Sharpei Mix","Chinese Sharpei/Airedale Terrier","Chinese Sharpei/American Staffordshire Terrier","Chinese Sharpei/Australian Cattle Dog","Chinese Sharpei/Basset Hound","Chinese Sharpei/Border Collie","Chinese Sharpei/Boxer","Chinese Sharpei/Chow Chow","Chinese Sharpei/Great Dane","Chinese Sharpei/Labrador Retriever","Chinese Sharpei/Pit Bull","Chinese Sharpei/Pointer","Chinese Sharpei/Rat Terrier","Chinese Sharpei/Rottweiler")
+chow_chow_breeds <-c("Chow Chow","Chow Chow Mix","Chow Chow/American Eskimo","Chow Chow/Australian Cattle Dog","Chow Chow/Basset Hound","Chow Chow/Border Collie","Chow Chow/German Shepherd","Chow Chow/Golden Retriever","Chow Chow/Labrador Retriever","Chow Chow/Pekingese","Chow Chow/Pit Bull","Chow Chow/Siberian Husky")
+cocker_spaniel_breeds <-c("Cocker Spaniel","Cocker Spaniel Mix","Cocker Spaniel/Australian Shepherd","Cocker Spaniel/Basset Hound","Cocker Spaniel/Chihuahua Longhair","Cocker Spaniel/Chihuahua Shorthair","Cocker Spaniel/Dachshund","Cocker Spaniel/Labrador Retriever","Cocker Spaniel/Miniature Poodle","Cocker Spaniel/Pembroke Welsh Corgi")
+collie_rough_breeds <-c("Collie Rough Mix","Collie Rough/Anatol Shepherd","Collie Rough/Australian Cattle Dog","Collie Rough/Australian Shepherd","Collie Rough/Chinese Sharpei","Collie Rough/Chow Chow","Collie Rough/German Shepherd","Collie Rough/Golden Retriever","Collie Rough/Great Pyrenees","Collie Rough/Labrador Retriever","Collie Rough/Pembroke Welsh Corgi","Collie Rough/Pointer")
+collie_smooth_breeds <-c("Collie Smooth","Collie Smooth Mix","Collie Smooth/Australian Kelpie","Collie Smooth/Boxer","Collie Smooth/German Shepherd","Collie Smooth/Golden Retriever","Collie Smooth/Jack Russell Terrier","Collie Smooth/Labrador Retriever","Collie Smooth/Siberian Husky")
+dachshund_longhair_breeds <-c("Dachshund Longhair","Dachshund Longhair Mix","Dachshund Longhair/Cairn Terrier","Dachshund Longhair/Cardigan Welsh Corgi","Dachshund Longhair/Chihuahua Longhair","Dachshund Longhair/Chihuahua Shorthair","Dachshund Longhair/Maltese","Dachshund Longhair/Miniature Poodle","Dachshund Longhair/Miniature Schnauzer","Dachshund Longhair/Pembroke Welsh Corgi","Dachshund Longhair/Pomeranian","Dachshund Longhair/Tibetan Spaniel","Dachshund Longhair/Toy Poodle")
+dachshund_wirehair_breeds <-c("Dachshund Wirehair","Dachshund Wirehair Mix","Dachshund Wirehair/Border Terrier","Dachshund Wirehair/Cairn Terrier","Dachshund Wirehair/Chihuahua Longhair","Dachshund Wirehair/Chihuahua Shorthair","Dachshund Wirehair/Miniature Poodle","Dachshund Wirehair/Miniature Schnauzer","Dachshund Wirehair/Norfolk Terrier","Dachshund Wirehair/Pbgv","Dachshund Wirehair/Shih Tzu","Dachshund Wirehair/Toy Poodle","Dachshund Wirehair/Yorkshire Terrier")
+dachshund_breeds <-c("Dachshund/Beagle","Dachshund/Belgian Malinois","Dachshund/Blue Lacy","Dachshund/Border Collie","Dachshund/Cardigan Welsh Corgi","Dachshund/Catahoula","Dachshund/Cavalier Span","Dachshund/Chihuahua Longhair","Dachshund/Chihuahua Shorthair","Dachshund/Chinese Sharpei","Dachshund/Dachshund","Dachshund/English Foxhound","Dachshund/German Pinscher","Dachshund/German Shepherd","Dachshund/Greyhound","Dachshund/Harrier","Dachshund/Havanese","Dachshund/Jack Russell Terrier","Dachshund/Labrador Retriever","Dachshund/Manchester Terrier","Dachshund/Miniature Pinscher","Dachshund/Miniature Poodle","Dachshund/Pembroke Welsh Corgi","Dachshund/Pit Bull","Dachshund/Pomeranian","Dachshund/Pug","Dachshund/Rat Terrier","Dachshund/Shetland Sheepdog","Dachshund/Shih Tzu","Dachshund/Whippet","Dachshund/Yorkshire Terrier")
+dalmation_breeds <-c("Dalmatian","Dalmatian Mix","Dalmatian/Australian Cattle Dog","Dalmatian/Boxer","Dalmatian/Labrador Retriever","Dalmatian/Plott Hound")
+doberman_pinsch <-c("Doberman Pinsch","Doberman Pinsch Mix","Doberman Pinsch/German Shepherd","Doberman Pinsch/Labrador Retriever","Doberman Pinsch/Pit Bull")
+dogo_argentino <-c("Dogo Argentino","Dogo Argentino Mix","Dogo Argentino/Labrador Retriever")
+dutch_shepherd_breeds <-c("Dutch Shepherd","Dutch Shepherd Mix","Dutch Shepherd/Anatol Shepherd","Dutch Shepherd/Labrador Retriever","Dutch Shepherd/Mastiff","Dutch Shepherd/Plott Hound")
+english_bulldog_breeds <-c("English Bulldog","English Bulldog Mix","English Bulldog/American Bulldog","English Bulldog/American Staffordshire Terrier","English Bulldog/Beagle")
+english_coonhound_breeds <-c("English Coonhound","English Coonhound Mix","English Coonhound/Border Collie","English Coonhound/German Shepherd","English Coonhound/Italian Greyhound")
+flat_coat_breeds <-c("Flat Coat Retriever Mix","Flat Coat Retriever/Australian Cattle Dog","Flat Coat Retriever/Chow Chow","Flat Coat Retriever/German Shepherd","Flat Coat Retriever/Golden Retriever","Flat Coat Retriever/Labrador Retriever","Flat Coat Retriever/Papillon")
+german_shepherd_breeds <-c("German Shepherd","German Shepherd Mix","German Shepherd/Akita","German Shepherd/Alaskan Husky","German Shepherd/Alaskan Malamute","German Shepherd/Anatol Shepherd","German Shepherd/Australian Cattle Dog","German Shepherd/Australian Kelpie","German Shepherd/Australian Shepherd","German Shepherd/Beagle","German Shepherd/Black Mouth Cur","German Shepherd/Black/Tan Hound","German Shepherd/Border Collie","German Shepherd/Boxer","German Shepherd/Bull Terrier","German Shepherd/Cardigan Welsh Corgi","German Shepherd/Catahoula","German Shepherd/Chinese Sharpei","German Shepherd/Chow Chow","German Shepherd/Collie Rough","German Shepherd/Collie Smooth","German Shepherd/Doberman Pinsch","German Shepherd/English Coonhound","German Shepherd/Golden Retriever","German Shepherd/Great Pyrenees","German Shepherd/Ibizan Hound","German Shepherd/Labrador Retriever","German Shepherd/Mastiff","German Shepherd/Nova Scotia Duck Tolling Retriever","German Shepherd/Pembroke Welsh Corgi","German Shepherd/Pit Bull","German Shepherd/Plott Hound","German Shepherd/Redbone Hound","German Shepherd/Rottweiler","German Shepherd/Siberian Husky","German Shepherd/Smooth Fox Terrier","German Shepherd/Vizsla","German Shepherd/Weimaraner","German Shepherd/Whippet")
+golden_retriever_breeds <-c("Golden Retriever","Golden Retriever Mix","Golden Retriever/Akita","Golden Retriever/Australian Cattle Dog","Golden Retriever/Australian Shepherd","Golden Retriever/Beagle","Golden Retriever/Bearded Collie","Golden Retriever/Border Collie","Golden Retriever/Catahoula","Golden Retriever/Chow Chow","Golden Retriever/Collie Rough","Golden Retriever/Dachshund","Golden Retriever/Finnish Spitz","Golden Retriever/German Shepherd","Golden Retriever/Great Pyrenees","Golden Retriever/Labrador Retriever","Golden Retriever/Pembroke Welsh Corgi")
+great_dane_breeds <-c("Great Dane","Great Dane Mix","Great Dane/Anatol Shepherd","Great Dane/Australian Cattle Dog","Great Dane/Boxer","Great Dane/Labrador Retriever","Great Dane/Mastiff","Great Dane/Pit Bull","Great Dane/Staffordshire")
+great_pyrenees_breeds <-c("Great Pyrenees","Great Pyrenees Mix","Great Pyrenees/Alaskan Husky","Great Pyrenees/American Bulldog","Great Pyrenees/Anatol Shepherd","Great Pyrenees/Australian Cattle Dog","Great Pyrenees/Australian Shepherd","Great Pyrenees/Border Collie","Great Pyrenees/Catahoula","Great Pyrenees/Chow Chow","Great Pyrenees/Collie Rough","Great Pyrenees/English Pointer","Great Pyrenees/English Setter","Great Pyrenees/German Shepherd","Great Pyrenees/Golden Retriever","Great Pyrenees/Labrador Retriever","Great Pyrenees/Plott Hound","Great Pyrenees/Pointer","Great Pyrenees/Queensland Heeler","Great Pyrenees/Rottweiler","Great Pyrenees/Standard Poodle")
+greyhound_breeds <-c("Greyhound Mix","Greyhound/Border Collie","Greyhound/Great Dane","Greyhound/Labrador Retriever","Greyhound/Pointer")
+harrier_breeds <-c("Harrier","Harrier Mix","Harrier/Catahoula","Harrier/Labrador Retriever","Harrier/Pointer")
+irish_terrier_breeds <-c("Irish Terrier Mix","Irish Terrier/Border Terrier","Irish Terrier/Labrador Retriever")
+italian_greyhound_breeds <-c("Italian Greyhound Mix","Italian Greyhound/Cavalier Span","Italian Greyhound/Chihuahua Shorthair")
+jack_russell_breeds <-c("Jack Russell Terrier","Jack Russell Terrier Mix","Jack Russell Terrier/Australian Cattle Dog","Jack Russell Terrier/Australian Shepherd","Jack Russell Terrier/Basset Hound","Jack Russell Terrier/Beagle","Jack Russell Terrier/Boston Terrier","Jack Russell Terrier/Brittany","Jack Russell Terrier/Cardigan Welsh Corgi","Jack Russell Terrier/Cavalier Span","Jack Russell Terrier/Chihuahua Shorthair","Jack Russell Terrier/Dachshund","Jack Russell Terrier/Dachshund Wirehair","Jack Russell Terrier/Italian Greyhound","Jack Russell Terrier/Labrador Retriever","Jack Russell Terrier/Miniature Poodle","Jack Russell Terrier/Pembroke Welsh Corgi","Jack Russell Terrier/Pit Bull","Jack Russell Terrier/Pointer","Jack Russell Terrier/Pug","Jack Russell Terrier/Rat Terrier","Jack Russell Terrier/Shetland Sheepdog","Jack Russell Terrier/Shih Tzu","Jack Russell Terrier/Standard Schnauzer","Jack Russell Terrier/Welsh Terrier","Jack Russell Terrier/Yorkshire Terrier")
+labrador_retriever_breeds <-c("Labrador Retriever","Labrador Retriever Mix","Labrador Retriever/Alaskan Husky","Labrador Retriever/American Bulldog","Labrador Retriever/American Foxhound","Labrador Retriever/American Pit Bull Terrier","Labrador Retriever/Anatol Shepherd","Labrador Retriever/Australian Cattle Dog","Labrador Retriever/Australian Kelpie","Labrador Retriever/Australian Shepherd","Labrador Retriever/Basset Hound","Labrador Retriever/Beagle","Labrador Retriever/Beauceron","Labrador Retriever/Black Mouth Cur","Labrador Retriever/Black/Tan Hound","Labrador Retriever/Bloodhound","Labrador Retriever/Blue Lacy","Labrador Retriever/Border Collie","Labrador Retriever/Boston Terrier","Labrador Retriever/Boxer","Labrador Retriever/Catahoula","Labrador Retriever/Chesa Bay Retr","Labrador Retriever/Chihuahua Shorthair","Labrador Retriever/Chinese Sharpei","Labrador Retriever/Chow Chow","Labrador Retriever/Cocker Spaniel","Labrador Retriever/Collie Smooth","Labrador Retriever/Dachshund","Labrador Retriever/Dalmatian","Labrador Retriever/Doberman Pinsch","Labrador Retriever/English Springer Spaniel","Labrador Retriever/Finnish Spitz","Labrador Retriever/Flat Coat Retriever","Labrador Retriever/German Shepherd","Labrador Retriever/German Shorthair Pointer","Labrador Retriever/Golden Retriever","Labrador Retriever/Great Dane","Labrador Retriever/Great Pyrenees","Labrador Retriever/Greyhound","Labrador Retriever/Irish Setter","Labrador Retriever/Jack Russell Terrier","Labrador Retriever/Labrador Retriever","Labrador Retriever/Mastiff","Labrador Retriever/Miniature Poodle","Labrador Retriever/Newfoundland","Labrador Retriever/Patterdale Terr","Labrador Retriever/Pit Bull","Labrador Retriever/Plott Hound","Labrador Retriever/Pointer","Labrador Retriever/Pug","Labrador Retriever/Queensland Heeler","Labrador Retriever/Rat Terrier","Labrador Retriever/Redbone Hound","Labrador Retriever/Rhod Ridgeback","Labrador Retriever/Rottweiler","Labrador Retriever/Saluki","Labrador Retriever/Shiba Inu","Labrador Retriever/Siberian Husky","Labrador Retriever/Smooth Fox Terrier","Labrador Retriever/Spanish Water Dog","Labrador Retriever/St. Bernard Rough Coat","Labrador Retriever/St. Bernard Smooth Coat","Labrador Retriever/Staffordshire","Labrador Retriever/Standard Poodle","Labrador Retriever/Standard Schnauzer","Labrador Retriever/Treeing Walker Coonhound","Labrador Retriever/Vizsla","Labrador Retriever/Weimaraner","Labrador Retriever/Whippet")
+lhasa_apso_breeds <-c("Lhasa Apso Mix","Lhasa Apso/Dachshund","Lhasa Apso/Jack Russell Terrier","Lhasa Apso/Miniature Poodle","Lhasa Apso/Miniature Schnauzer")
+lowchen_breeds <-c("Lowchen Mix","Lowchen/Miniature Poodle","Lowchen/Yorkshire Terrier")
+maltese_breeds <-c("Maltese","Maltese Mix","Maltese/Border Terrier","Maltese/Chihuahua Shorthair","Maltese/Jack Russell Terrier","Maltese/Miniature Poodle","Maltese/Toy Poodle","Maltese/Yorkshire Terrier")
+manchester_breeds <-c("Manchester Terrier Mix","Manchester Terrier/Australian Kelpie","Manchester Terrier/Beagle","Manchester Terrier/Chihuahua Longhair","Manchester Terrier/Chihuahua Shorthair","Manchester Terrier/Dachshund","Manchester Terrier/Jack Russell Terrier","Manchester Terrier/Labrador Retriever","Manchester Terrier/Pembroke Welsh Corgi","Manchester Terrier/Toy Fox Terrier")
+mastiff_breeds <-c("Mastiff","Mastiff Mix","Mastiff/Akita","Mastiff/American Pit Bull Terrier","Mastiff/Anatol Shepherd","Mastiff/Bloodhound","Mastiff/Boxer","Mastiff/Cane Corso","Mastiff/Chinese Sharpei","Mastiff/Dutch Shepherd","Mastiff/Labrador Retriever","Mastiff/Pit Bull","Mastiff/Rottweiler")
+miniature_pinscher_breeds <-c("Miniature Pinscher","Miniature Pinscher Mix","Miniature Pinscher/Chihuahua Shorthair","Miniature Pinscher/Dachshund","Miniature Pinscher/Maltese","Miniature Pinscher/Pug","Miniature Pinscher/Smooth Fox Terrier","Miniature Pinscher/Whippet")
+miniature_poodle_breeds <-c("Miniature Poodle","Miniature Poodle Mix","Miniature Poodle/Australian Cattle Dog","Miniature Poodle/Cairn Terrier","Miniature Poodle/Chihuahua Shorthair","Miniature Poodle/Cocker Spaniel","Miniature Poodle/Dachshund","Miniature Poodle/English Cocker Spaniel","Miniature Poodle/Golden Retriever","Miniature Poodle/Havanese","Miniature Poodle/Italian Greyhound","Miniature Poodle/Labrador Retriever","Miniature Poodle/Lhasa Apso","Miniature Poodle/Maltese","Miniature Poodle/Miniature Schnauzer","Miniature Poodle/Pomeranian","Miniature Poodle/Shih Tzu","Miniature Poodle/Yorkshire Terrier")
+miniature_schnauzer_breeds <-c("Miniature Schnauzer","Miniature Schnauzer Mix","Miniature Schnauzer/Australian Cattle Dog","Miniature Schnauzer/Border Collie","Miniature Schnauzer/Border Terrier","Miniature Schnauzer/Cairn Terrier","Miniature Schnauzer/Chihuahua Longhair","Miniature Schnauzer/Chihuahua Shorthair","Miniature Schnauzer/Dachshund","Miniature Schnauzer/Dachshund Longhair","Miniature Schnauzer/Jack Russell Terrier","Miniature Schnauzer/Maltese","Miniature Schnauzer/Miniature Poodle","Miniature Schnauzer/Scottish Terrier","Miniature Schnauzer/Shih Tzu","Miniature Schnauzer/West Highland","Miniature Schnauzer/Yorkshire Terrier")
+newfoundland_breeds <-c("Newfoundland Mix","Newfoundland/Australian Cattle Dog","Newfoundland/Border Collie","Newfoundland/Labrador Retriever","Newfoundland/Queensland Heeler")
+norfolk_terrier_breeds <-c("Norfolk Terrier","Norfolk Terrier Mix","Norfolk Terrier/Bruss Griffon","Norfolk Terrier/Cairn Terrier","Norfolk Terrier/Chihuahua Shorthair","Norfolk Terrier/Lhasa Apso","Norfolk Terrier/Pug","Norfolk Terrier/Standard Poodle","Norfolk Terrier/Yorkshire Terrier")
+norwich_breeds <-c("Norwich Terrier","Norwich Terrier Mix","Norwich Terrier/Border Terrier","Norwich Terrier/Cairn Terrier","Norwich Terrier/Yorkshire Terrier")
+papillon_breeds <-c("Papillon","Papillon Mix","Papillon/Chihuahua Shorthair","Papillon/Pomeranian","Papillon/Skye Terrier")
+parson_breeds <-c("Parson Russell Terrier","Parson Russell Terrier Mix","Parson Russell Terrier/Beagle","Parson Russell Terrier/Chihuahua Shorthair")
+pekingese_breeds <-c("Pekingese","Pekingese Mix","Pekingese/Catahoula","Pekingese/Chihuahua Shorthair","Pekingese/Maltese")
+pembroke_breeds <-c("Pembroke Welsh Corgi","Pembroke Welsh Corgi Mix","Pembroke Welsh Corgi/Anatol Shepherd","Pembroke Welsh Corgi/Chihuahua Longhair","Pembroke Welsh Corgi/Chihuahua Shorthair","Pembroke Welsh Corgi/Chinese Sharpei","Pembroke Welsh Corgi/Dachshund","Pembroke Welsh Corgi/German Shepherd","Pembroke Welsh Corgi/Golden Retriever","Pembroke Welsh Corgi/Pit Bull")
+pitbull_breeds <-c("Pit Bull","Pit Bull Mix","Pit Bull/American Foxhound","Pit Bull/Anatol Shepherd","Pit Bull/Australian Cattle Dog","Pit Bull/Basset Hound","Pit Bull/Black Mouth Cur","Pit Bull/Blue Lacy","Pit Bull/Boston Terrier","Pit Bull/Boxer","Pit Bull/Bulldog","Pit Bull/Cardigan Welsh Corgi","Pit Bull/Catahoula","Pit Bull/Chihuahua Shorthair","Pit Bull/Chinese Sharpei","Pit Bull/Chow Chow","Pit Bull/Dachshund","Pit Bull/Dalmatian","Pit Bull/Doberman Pinsch","Pit Bull/English Bulldog","Pit Bull/French Bulldog","Pit Bull/German Shepherd","Pit Bull/Labrador Retriever","Pit Bull/Mastiff","Pit Bull/Pharaoh Hound","Pit Bull/Plott Hound","Pit Bull/Pointer","Pit Bull/Pug","Pit Bull/Queensland Heeler","Pit Bull/Rat Terrier","Pit Bull/Rottweiler","Pit Bull/Weimaraner")
+plott_hound_breeds <-c("Plott Hound","Plott Hound Mix","Plott Hound/Beagle","Plott Hound/Blue Lacy","Plott Hound/Border Collie","Plott Hound/Boxer","Plott Hound/Bull Terrier","Plott Hound/Dachshund","Plott Hound/Dutch Shepherd","Plott Hound/German Shepherd","Plott Hound/Labrador Retriever","Plott Hound/Mastiff","Plott Hound/Pit Bull","Plott Hound/Rhod Ridgeback","Plott Hound/Rottweiler","Plott Hound/Whippet")
+pointer_breeds <-c("Pointer","Pointer Mix","Pointer/American Pit Bull Terrier","Pointer/Anatol Shepherd","Pointer/Australian Cattle Dog","Pointer/Basset Hound","Pointer/Border Collie","Pointer/Boxer","Pointer/Brittany","Pointer/Bull Terrier","Pointer/Catahoula","Pointer/Collie Smooth","Pointer/Harrier","Pointer/Ibizan Hound","Pointer/Jack Russell Terrier","Pointer/Labrador Retriever","Pointer/Pit Bull","Pointer/Queensland Heeler","Pointer/Rhod Ridgeback","Pointer/Staffordshire")
+pomeranian_breeds <-c("Pomeranian","Pomeranian Mix","Pomeranian/Border Terrier","Pomeranian/Chihuahua Longhair","Pomeranian/Chihuahua Shorthair","Pomeranian/Jack Russell Terrier")
+pug_breeds <-c("Pug","Pug Mix","Pug/Beagle","Pug/Border Terrier","Pug/Chihuahua Longhair","Pug/Chihuahua Shorthair","Pug/Cocker Spaniel","Pug/French Bulldog","Pug/Italian Greyhound","Pug/Labrador Retriever","Pug/Miniature Pinscher","Pug/Schipperke","Pug/Staffordshire")
+queensland_breeds <-c("Queensland Heeler","Queensland Heeler Mix","Queensland Heeler/Basset Hound","Queensland Heeler/Border Collie","Queensland Heeler/Cardigan Welsh Corgi","Queensland Heeler/Chihuahua Shorthair","Queensland Heeler/Dachshund","Queensland Heeler/Great Dane","Queensland Heeler/Great Pyrenees","Queensland Heeler/Pit Bull","Queensland Heeler/Pointer","Queensland Heeler/Shetland Sheepdog")
+rat_terrier_breeds <-c("Rat Terrier","Rat Terrier Mix","Rat Terrier/Basenji","Rat Terrier/Beagle","Rat Terrier/Border Collie","Rat Terrier/Boston Terrier","Rat Terrier/Cardigan Welsh Corgi","Rat Terrier/Chihuahua Shorthair","Rat Terrier/Dachshund","Rat Terrier/English Pointer","Rat Terrier/Labrador Retriever","Rat Terrier/Miniature Poodle","Rat Terrier/Pekingese","Rat Terrier/Pembroke Welsh Corgi","Rat Terrier/Pit Bull","Rat Terrier/Pointer","Rat Terrier/Pug","Rat Terrier/Smooth Fox Terrier")
+redbone_hound_breeds <-c("Redbone Hound","Redbone Hound Mix","Redbone Hound/Anatol Shepherd","Redbone Hound/Boxer","Redbone Hound/Dachshund","Redbone Hound/Labrador Retriever","Redbone Hound/Redbone Hound","Redbone Hound/Rhod Ridgeback")
+rod_ridgeback_breeds <-c("Rhod Ridgeback","Rhod Ridgeback Mix","Rhod Ridgeback/Boxer","Rhod Ridgeback/German Shepherd","Rhod Ridgeback/Harrier","Rhod Ridgeback/Labrador Retriever","Rhod Ridgeback/Pit Bull","Rhod Ridgeback/Plott Hound","Rhod Ridgeback/Pointer_")
+rottweiler_breeds <-c("Rottweiler","Rottweiler Mix","Rottweiler/Australian Cattle Dog","Rottweiler/Blue Lacy","Rottweiler/Doberman Pinsch","Rottweiler/German Shepherd","Rottweiler/Labrador Retriever","Rottweiler/Pit Bull","Rottweiler/Plott Hound","Rottweiler/Rhod Ridgeback","Rottweiler/Siberian Husky")
+saluki_breeds <-c("Saluki","Saluki Mix","Saluki/Doberman Pinsch","Saluki/Labrador Retriever")
+shetland_breeds <-c("Shetland Sheepdog Mix","Shetland Sheepdog/Border Collie","Shetland Sheepdog/Brittany","Shetland Sheepdog/Cavalier Span","Shetland Sheepdog/Chihuahua Longhair","Shetland Sheepdog/Dachshund Longhair")
+shiba_breeds <-c("Shiba Inu","Shiba Inu Mix","Shiba Inu/Australian Kelpie","Shiba Inu/German Shepherd","Shiba Inu/Siberian Husky")
+shihtzu_breeds <-c("Shih Tzu","Shih Tzu Mix","Shih Tzu/Bruss Griffon","Shih Tzu/Chihuahua Longhair","Shih Tzu/Chihuahua Shorthair","Shih Tzu/Dachshund","Shih Tzu/Miniature Poodle","Shih Tzu/Miniature Schnauzer","Shih Tzu/Norfolk Terrier","Shih Tzu/Toy Poodle","Shih Tzu/Yorkshire Terrier")
+siberian_husky_breeds <-c("Siberian Husky","Siberian Husky Mix","Siberian Husky/Alaskan Malamute","Siberian Husky/American Pit Bull Terrier","Siberian Husky/Australian Cattle Dog","Siberian Husky/Australian Shepherd","Siberian Husky/Border Collie","Siberian Husky/Cardigan Welsh Corgi","Siberian Husky/Catahoula","Siberian Husky/German Shepherd","Siberian Husky/Labrador Retriever","Siberian Husky/Pit Bull")
+silky_terrier_breeds <-c("Silky Terrier","Silky Terrier Mix","Silky Terrier/Maltese","Silky Terrier/Yorkshire Terrier")
+smooth_fox_terrier_breeds <-c("Smooth Fox Terrier","Smooth Fox Terrier Mix","Smooth Fox Terrier/Cardigan Welsh Corgi","Smooth Fox Terrier/Chihuahua Shorthair","Smooth Fox Terrier/Jack Russell Terrier","Smooth Fox Terrier/Labrador Retriever","Smooth Fox Terrier/Rat Terrier")
+wheaten_terrier_breeds <-c("Soft Coated Wheaten Terrier","Soft Coated Wheaten Terrier Mix","Soft Coated Wheaten Terrier/Border Terrier","Soft Coated Wheaten Terrier/Chihuahua Shorthair","Soft Coated Wheaten Terrier/Labrador Retriever","Soft Coated Wheaten Terrier/Miniature Poodle","Soft Coated Wheaten Terrier/Standard Poodle","Soft Coated Wheaten Terrier/Yorkshire Terrier")
+staffordshire_breeds <-c("Staffordshire","Staffordshire Mix","Staffordshire/Australian Cattle Dog","Staffordshire/Basset Hound","Staffordshire/Beagle","Staffordshire/Blue Lacy","Staffordshire/Border Collie","Staffordshire/Boston Terrier","Staffordshire/Boxer","Staffordshire/English Bulldog","Staffordshire/French Bulldog","Staffordshire/Labrador Retriever")
+yorkshire_terrier_breeds <-c("Yorkshire Terrier","Yorkshire Terrier Mix","Yorkshire Terrier/Australian Terrier","Yorkshire Terrier/Border Terrier","Yorkshire Terrier/Bruss Griffon","Yorkshire Terrier/Cairn Terrier","Yorkshire Terrier/Chihuahua Longhair","Yorkshire Terrier/Chihuahua Shorthair","Yorkshire Terrier/Chinese Crested","Yorkshire Terrier/Dachshund","Yorkshire Terrier/Havanese","Yorkshire Terrier/Lhasa Apso","Yorkshire Terrier/Maltese","Yorkshire Terrier/Miniature Poodle","Yorkshire Terrier/Miniature Schnauzer","Yorkshire Terrier/Norfolk Terrier","Yorkshire Terrier/Parson Russell Terrier","Yorkshire Terrier/Pomeranian","Yorkshire Terrier/Rat Terrier","Yorkshire Terrier/Shih Tzu","Yorkshire Terrier/Soft Coated Wheaten Terrier","Yorkshire Terrier/Yorkshire Terrier")
+wirehairfox_breeds <-c("Wire Hair Fox Terrier Mix","Wire Hair Fox Terrier/Beagle","Wire Hair Fox Terrier/Chihuahua Shorthair","Wire Hair Fox Terrier/Dachshund","Wire Hair Fox Terrier/Miniature Schnauzer")
+whippet_breeds <-c("Whippet","Whippet Mix","Whippet/Anatol Shepherd","Whippet/Australian Kelpie","Whippet/Beagle","Whippet/Borzoi","Whippet/Chihuahua Shorthair","Whippet/Dachshund","Whippet/Jack Russell Terrier","Whippet/Labrador Retriever","Whippet/Shetland Sheepdog")
+west_highland_breeds <-c("West Highland","West Highland Mix","West Highland/Miniature Poodle","West Highland/Toy Fox Terrier")
+vizsla_breeds <-c("Vizsla","Vizsla Mix","Vizsla/Beagle","Vizsla/Boxer","Vizsla/Catahoula","Vizsla/Dachshund","Vizsla/German Shepherd","Vizsla/Golden Retriever","Vizsla/Greyhound","Vizsla/Labrador Retriever","Vizsla/Staffordshire")
+treeing_walker_breeds <-c("Treeing Walker Coonhound","Treeing Walker Coonhound Mix","Treeing Walker Coonhound/Australian Cattle Dog","Treeing Walker Coonhound/Dachshund","Treeing Walker Coonhound/German Shepherd","Treeing Walker Coonhound/Labrador Retrieve")
+toy_poodle_breeds <-c("Toy Poodle","Toy Poodle Mix","Toy Poodle/Miniature Schnauzer","Toy Poodle/Yorkshire Terrier")
+standard_schnauzer_breeds <-c("Standard Schnauzer","Standard Schnauzer Mix","Standard Schnauzer/Labrador Retriever","Standard Schnauzer/Miniature Poodle","Standard Schnauzer/Soft Coated Wheaten Terrier","Standard Schnauzer/Standard Poodle")
+standard_poodle_breeds <-c("Standard Poodle","Standard Poodle Mix","Standard Poodle/Labrador Retriever","Standard Poodle/Whippet","Standard Schnauzer")
+american_pitbull_breeds <-c("American Pit Bull Terrier","American Pit Bull Terrier Mix","American Pit Bull Terrier/Boxer","American Pit Bull Terrier/Pit Bull","American Pit Bull Terrier/Pointer")
+american_eskimo_breeds <-c("American Eskimo","American Eskimo Mix","American Eskimo/Australian Shepherd","American Eskimo/Border Collie")
+
+
+
+# Create a new column "CombinedBreed" for dogs
+breed_counts_df <- breed_counts_df %>%
+  mutate(
+    CombinedBreed = case_when(
+      breed %in% husky_breeds ~ "Husky Mix",
+      breed %in% airedale_breeds ~ "Airedale Terrier",
+      breed %in% akita_breeds ~ "Akita Mix",
+      breed %in% alaskan_malamute_breeds ~ "Alaskan Malamute Mix",
+      breed %in% american_bulldog_breeds ~ "American Bulldog Mix",
+      breed %in% anatol_shepherd_breeds ~ "Anatol Shepherd Mix",
+      breed %in% australian_cattle_breeds ~ "Australian Cattle Dog Mix",
+      breed %in% australian_kelpie_breeds ~ "Australian Kelpie Mix",
+      breed %in% australian_shepherd_breeds ~ "Australian Shepherd Mix",
+      breed %in% basenji_breeds ~ "Basenji Mix",
+      breed %in% basset_hound_breeds ~ "Basset Hound Mix",
+      breed %in% beagle_breeds ~ "Beagle Mix",
+      breed %in% black_mouth_cur_breeds ~ "Black Mouth Cur Mix",
+      breed %in% black_tan_hound_breeds ~ "Black/Tan Hound Mix",
+      breed %in% blue_lacy_breeds ~ "Blue Lacy Mix",
+      breed %in% bluetick_hound_breeds ~ "Bluetick Mix",
+      breed %in% border_collie_breeds ~ "Border Collie Mix",
+      breed %in% border_terrier_breeds ~ "Border Terrier Mix",
+      breed %in% boxer_breeds ~ "Boxer Mix",
+      breed %in% bruss_griffon_breeds ~ "Bruss Griffon Mix",
+      breed %in% bull_terrier_breeds ~ "Bull Terrier Mix",
+      breed %in% bulldog_breeds ~ "Bulldog Mix",
+      breed %in% cairn_terrier_breeds ~ "Cairn Terrier Mix",
+      breed %in% catahoula_breeds ~ "Catahoula Mix",
+      breed %in% chihuahua_longhair_breeds ~ "Chihuahua Longhair Mix",
+      breed %in% chihuahua_shorthair_breeds ~ "Chihuahua Shorthair Mix",
+      breed %in% chinese_sharpei_breeds ~ "Chinese Sharpei Mix",
+      breed %in% chow_chow_breeds ~ "Chow Chow Mix",
+      breed %in% cocker_spaniel_breeds ~ "Cocker Spaniel Mix",
+      breed %in% collie_rough_breeds ~ "Collie Rough Mix",
+      breed %in% collie_smooth_breeds ~ "Collie Smooth Mix",
+      breed %in% dachshund_longhair_breeds ~ "Dachshund Longhair Mix",
+      breed %in% dachshund_wirehair_breeds ~ "Dachshund Wirehair Mix",
+      breed %in% dachshund_breeds ~ "Dachshund Mix",
+      breed %in% dalmation_breeds ~ "Dalmation Mix",
+      breed %in% doberman_pinsch ~ "Doberman Pinsch Mix",
+      breed %in% dogo_argentino ~ "Bluetick Mix",
+      breed %in% dutch_shepherd_breeds ~ "Dutch Shepherd Mix",
+      breed %in% english_bulldog_breeds ~ "English Bulldog Mix",
+      breed %in% english_coonhound_breeds ~ "English Coonhound Mix",
+      breed %in% flat_coat_breeds ~ "Flat Coat Mix",
+      breed %in% german_shepherd_breeds ~ "German Shepherd Mix",
+      breed %in% golden_retriever_breeds ~ "Golden Retriever Mix",
+      breed %in% great_dane_breeds ~ "Bluetick Mix",
+      breed %in% great_pyrenees_breeds ~ "Great Pyrenees Mix",
+      breed %in% greyhound_breeds ~ "Greyhound Mix",
+      breed %in% jack_russell_breeds ~ "Jack Russell Terrier Mix",
+      breed %in% labrador_retriever_breeds ~ "Labrador Retriever Mix",
+      breed %in% lhasa_apso_breeds ~ "Lhasa Apso Mix",
+      breed %in% lowchen_breeds ~ "Lowchen Mix",
+      breed %in% maltese_breeds ~ "Maltese Mix",
+      breed %in% manchester_breeds ~ "Manchester Terrier Mix",
+      breed %in% mastiff_breeds ~ "Mastiff Mix",
+      breed %in% miniature_pinscher_breeds ~ "Miniature Pinscher Mix",
+      breed %in% miniature_poodle_breeds ~ "Miniature Poodle Mix",
+      breed %in% miniature_schnauzer_breeds ~ "Miniature Schnauzer Mix",
+      breed %in% newfoundland_breeds ~ "Newfoundland Mix",
+      breed %in% norfolk_terrier_breeds ~ "Norfolk Terrier Mix",
+      breed %in% norwich_breeds ~ "Norwich Terrier Mix",
+      breed %in% papillon_breeds ~ "Papillon Mix",
+      breed %in% parson_breeds ~ "Parson Russell Terrier Mix",
+      breed %in% pekingese_breeds ~ "Pekingese Mix",
+      breed %in% pembroke_breeds ~ "Pembroke Welsh Corgi Mix",
+      breed %in% pitbull_breeds ~ "Pitbull Mix",
+      breed %in% plott_hound_breeds ~ "Plot Hound Mix",
+      breed %in% pointer_breeds ~ "Pointer Mix",
+      breed %in% pomeranian_breeds ~ "Pomeranian Mix",
+      breed %in% pug_breeds ~ "Pug Mix",
+      breed %in% queensland_breeds ~ "Queensland Heeler Mix",
+      breed %in% rat_terrier_breeds ~ "Rat Terrier Mix",
+      breed %in% redbone_hound_breeds ~ "Redbone Hound Mix",
+      breed %in% rottweiler_breeds ~ "Rottweiler Mix",
+      breed %in% saluki_breeds ~ "Saluki Mix",
+      breed %in% shetland_breeds ~ "Shetland Sheepdog Mix",
+      breed %in% shiba_breeds ~ "Shiba Inu Mix",
+      breed %in% shihtzu_breeds ~ "Shih Tzu Mix",
+      breed %in% siberian_husky_breeds ~ "Siberian Husky Mix",
+      breed %in% silky_terrier_breeds ~ "Silky Terrier Mix",
+      breed %in% smooth_fox_terrier_breeds ~ "Smooth Fox Terrier Mix",
+      breed %in% staffordshire_breeds ~ "Staffordshire Mix",
+      breed %in% standard_poodle_breeds ~ "Standard Poodle Mix",
+      breed %in% standard_schnauzer_breeds ~ "Standard Schnauzer Mix",
+      breed %in% toy_poodle_breeds ~ "Toy Poodle Mix",
+      breed %in% treeing_walker_breeds ~ "Treeing Walker Mix",
+      breed %in% vizsla_breeds ~ "Vizsla Mix",
+      breed %in% west_highland_breeds ~ "West Highland Mix",
+      breed %in% whippet_breeds ~ "Whippet Mix",
+      breed %in% wirehairfox_breeds ~ "Wire Hair Fox Mix",
+      breed %in% yorkshire_terrier_breeds ~ "Yorkshire Terrier Mix",
+      breed %in% american_pitbull_breeds ~ "American Pitbull Mix",
+      breed %in% american_eskimo_breeds ~ "American Eskimo Mix",
+      
+      TRUE ~ breed  # Keep the original breed for other breeds
+    )
+  )
+
+# Group the data by "CombinedBreed" and summarize counts
+combined_counts <- breed_counts_df %>%
+  group_by(CombinedBreed) %>%
+  summarize(CombinedCount = sum(count))
+
+# Optionally, you can remove the original "breed" and "count" columns
+# breed_counts_df <- breed_counts_df %>%
+#   select(-breed, -count)
+
+# View the resulting table with combined counts
+print(combined_counts)
+
+
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+# Assuming combined_counts contains your data
+
+# Create a new data frame with only the top 10 breeds
+top_10_breeds <- combined_counts %>%
+  top_n(10, CombinedCount)
+
+# Create the bar chart for the top 10 breeds
+ggplot(top_10_breeds, aes(x = CombinedBreed, y = CombinedCount)) +
+  geom_bar(stat = "identity", fill = "lightcoral") +
+  xlab("Mixed Breed") +
+  ylab("Adoption Count") +
+  ggtitle("Top 10 Adoptions by Mixed Breed") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+These graphs show which animal breeds have the highest and lowest adoption rates so that we can highlight focus and promotion on the less popular breeds.
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+# Assuming combined_counts contains your data
+
+# Create a new data frame with only the bottom 10 breeds
+bottom_10_breeds <- combined_counts %>%
+  arrange(CombinedCount) %>%
+  head(10)
+
+# Create the bar chart for the bottom 10 breeds
+ggplot(bottom_10_breeds, aes(x = CombinedBreed, y = CombinedCount)) +
+  geom_bar(stat = "identity", fill = "lightcoral") +
+  xlab("Mixed Breed") +
+  ylab("Adoption Count") +
+  ggtitle("Bottom 10 Adoptions by Mixed Breed") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+weekday_counts <- table(adoptions$outcome_weekday)
+```
+
+```{r}
+weekday_counts_df <- data.frame(
+  weekday = names(weekday_counts),
+  count = as.vector(weekday_counts)
+)
+
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(weekday_counts_df, aes(x = weekday, y = count)) +
+  geom_bar(stat = "identity", fill = "lightskyblue1", color = "blue4") +
+  xlab("Day of the Week") +
+  ylab("Adoption Count") +
+  ggtitle("Adoptions by Weekday")
+```
+
+```{r}
+intakeweekday_counts <- table(adoptions$intake_weekday)
+intakeweekday_counts_df <- data.frame(
+  intakeweekday = names(intakeweekday_counts),
+  count = as.vector(intakeweekday_counts)
+)
+library(ggplot2)
+
+ggplot(intakeweekday_counts_df, aes(x = intakeweekday, y = count)) +
+  geom_bar(stat = "identity", fill = "lightskyblue1", color = "blue4") +
+  xlab("Weekday") +
+  ylab("Intake Count") +
+  ggtitle("Intake by Weekday")
+```
+
+Based on data from the past 10 years, Saturday and Sunday are the most popular days that animals are adopted on.
+
+```{r}
+month_counts <- table(adoptions$outcome_month)
+```
+
+```{r}
+month_counts_df <- data.frame(
+  month = names(month_counts),
+  count = as.vector(month_counts)
+)
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(month_counts_df, aes(x = month, y = count)) +
+  geom_bar(stat = "identity", fill = "lightpink2", color = "maroon") +
+  xlab("Month") +
+  ylab("Adoption Count") +
+  ggtitle("Adoptions by Month")
+```
+
+Based on data from the past 10 years, July and December are the most prominent months that animals are being adopted, while April is the month that animals are being adopted the least. Promotional strategies can take advantage of the holiday season and promotional strategies to keep the rates high at that time of year, but efforts could be expanded upon in April to bring those numbers up.
+
+```{r}
+intakemonth_counts <- table(adoptions$intake_month)
+```
+
+```{r}
+intakemonth_counts_df <- data.frame(
+  intakemonth = names(intakemonth_counts),
+  count = as.vector(intakemonth_counts)
+)
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(intakemonth_counts_df, aes(x = intakemonth, y = count)) +
+  geom_bar(stat = "identity", fill = "lightpink2", color = "maroon") +
+  xlab("Month") +
+  ylab("Intake Count") +
+  ggtitle("Intake by Month")
+```
+
+```{r}
+age_counts <- table(adoptions$age_upon_outcome)
+```
+
+```{r}
+age_counts_df <- data.frame(
+  age = names(age_counts),
+  count = as.vector(age_counts)
+)
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(age_counts_df, aes(x = age, y = count)) +
+  geom_bar(stat = "identity", fill = "violetred2") +
+  xlab("Age") +
+  ylab("Adoption Count") +
+  ggtitle("Adoption by Age") +
+  #scale_x_discrete(labels = stringr::str_wrap(age_counts_df$age, width = 9))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+agegroup_counts <- table(adoptions$age_upon_outcome_age_group)
+```
+
+```{r}
+agegroup_counts_df <- data.frame(
+  age_group = names(agegroup_counts),
+  count = as.vector(agegroup_counts)
+)
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(agegroup_counts_df, aes(x = age_group, y = count)) +
+  geom_bar(stat = "identity", fill = "darkorchid4") +
+  xlab("Age Group") +
+  ylab("Adoption Count") +
+  ggtitle("Adoption by Age") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+overallagegroup_counts <- table(adoption_dat$age_upon_outcome_age_group)
+
+overallagegroup_counts_df <- data.frame(
+  age_group = names(overallagegroup_counts),
+  count = as.vector(overallagegroup_counts)
+)
+
+library(ggplot2)
+
+ggplot(overallagegroup_counts_df, aes(x = age_group, y = count)) +
+  geom_bar(stat = "identity", fill = "darkorchid4") +
+  xlab("Age Group") +
+  ylab("Count") +
+  ggtitle("Shelter Count by Age") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+color_counts <- table(adoptions$color)
+```
+
+```{r}
+color_counts_df <- data.frame(
+  color = names(color_counts),
+  count = as.vector(color_counts)
+)
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+# Assuming color_counts_df contains your data
+
+# Create a new data frame with only the top 10 colors
+top_10_colors <- color_counts_df %>%
+  top_n(10, count)
+
+# Create the bar chart for the top 10 colors
+ggplot(top_10_colors, aes(x = color, y = count)) +
+  geom_bar(stat = "identity", fill = "springgreen4") +
+  xlab("Color") +
+  ylab("Adoption Count") +
+  ggtitle("Top 10 Adoptions by Color") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+shelter_time <- table(adoptions$time_in_shelter_days)
+```
+
+```{r}
+shelter_time_df <- data.frame(
+  shelter_time = names(shelter_time),
+  count = as.vector(shelter_time)
+)
+```
+
+```{r}
+library(ggplot2)
+
+#ggplot(shelter_time_df, aes(x = shelter_time, y = count)) +
+  #geom_bar(stat = "identity") +
+  #xlab("Shelter Time") +
+  #ylab("Adoption Count") +
+  #ggtitle("Shelter Time for Adopted Animals")
+
+library(ggplot2)
+
+#ggplot(shelter_time_df, aes(x = shelter_time)) +
+  #geom_histogram(binwidth = 7, fill = "blue", color = "black") +
+  #xlab("Time in Shelter (Days)") +
+  #ylab("Frequency") +
+  #ggtitle("Distribution of Time in Shelter")
+
+ggplot(adoption_dat, aes(x = outcome_type, y = time_in_shelter_days)) +
+  geom_boxplot(fill = "lightblue", color = "black") +
+  xlab("Outcome Type") +
+  ylab("Time in Shelter (Days)") +
+  ggtitle("Time in Shelter by Outcome Type") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+agegroup_counts <- table(adoptions$age_upon_outcome_age_group)
+```
+
+```{r}
+library(dplyr)
+
+# Define vectors of breeds to combine
+husky_breeds <- c("Alaskan Husky", "Alaskan Husky Mix","Alaskan Husky/Border Collie", "Alaskan Husky/German Shepherd","Alaskan Husky/Labrador Retriever")
+airedale_breeds <- c("Airedale Terrier Mix","Airedale Terrier/Irish Terrier","Airedale Terrier/Labrador Retriever","Airedale Terrier/Miniature Schnauzer","Airedale Terrier/Otterhound")
+akita_breeds <- c("Akita","Akita Mix","Akita/Australian Cattle Dog","Akita/Border Collie","Akita/German Shepherd","Akita/Siberian Husky")
+alaskan_malamute_breeds <- c("Alaskan Malamute Mix","Alaskan Malamute/Akita","Alaskan Malamute/Australian Kelpie","Alaskan Malamute/Border Collie","Alaskan Malamute/German Shepherd","Alaskan Malamute/Labrador Retriever")
+american_bulldog_breeds <-c("American Bulldog","American Bulldog Mix","American Bulldog/Basset Hound","American Bulldog/Blue Lacy","American Bulldog/Dalmatian","American Bulldog/English Bulldog","American Bulldog/Labrador Retriever","American Bulldog/Mastiff")
+anatol_shepherd_breeds <-c("Anatol Shepherd","Anatol Shepherd Mix","Anatol Shepherd/Akita",
+"Anatol Shepherd/Black Mouth Cur","Anatol Shepherd/Border Collie","Anatol Shepherd/Catahoula", "Anatol Shepherd/Collie Rough","Anatol Shepherd/German Shepherd","Anatol Shepherd/German Shorthair Pointer","Anatol Shepherd/Great Pyrenees","Anatol Shepherd/Labrador Retriever","Anatol Shepherd/Mastiff","Anatol Shepherd/Pit Bull","Anatol Shepherd/Redbone Hound")
+australian_cattle_breeds <-c("Australian Cattle Dog","Australian Cattle Dog Mix","Australian Cattle Dog/Alaskan Husky","Australian Cattle Dog/American Pit Bull Terrier","Australian Cattle Dog/American Staffordshire Terrier","Australian Cattle Dog/Anatol Shepherd","Australian Cattle Dog/Australian Kelpie","Australian Cattle Dog/Australian Shepherd","Australian Cattle Dog/Basenji","Australian Cattle Dog/Beagle","Australian Cattle Dog/Belgian Malinois","Australian Cattle Dog/Border Collie","Australian Cattle Dog/Boston Terrier","Australian Cattle Dog/Boxer","Australian Cattle Dog/Cardigan Welsh Corgi","Australian Cattle Dog/Catahoula","Australian Cattle Dog/Chihuahua Shorthair","Australian Cattle Dog/Chinese Sharpei","Australian Cattle Dog/Collie Rough","Australian Cattle Dog/Collie Smooth","Australian Cattle Dog/Dalmatian","Australian Cattle Dog/German Shepherd","Australian Cattle Dog/German Shorthair Pointer","Australian Cattle Dog/Great Pyrenees","Australian Cattle Dog/Jack Russell Terrier","Australian Cattle Dog/Labrador Retriever","Australian Cattle Dog/Parson Russell Terrier","Australian Cattle Dog/Pembroke Welsh Corgi","Australian Cattle Dog/Pit Bull","Australian Cattle Dog/Plott Hound","Australian Cattle Dog/Pointer","Australian Cattle Dog/Pug","Australian Cattle Dog/Queensland Heeler","Australian Cattle Dog/Rat Terrier","Australian Cattle Dog/Rhod Ridgeback","Australian Cattle Dog/Siberian Husky","Australian Cattle Dog/Staffordshire","Australian Cattle Dog/Vizsla","Australian Cattle Dog/Whippet")
+australian_kelpie_breeds <-c("Australian Kelpie","Australian Kelpie Mix","Australian Kelpie/Alaskan Husky","Australian Kelpie/American Pit Bull Terrier","Australian Kelpie/Australian Cattle Dog","Australian Kelpie/Australian Shepherd","Australian Kelpie/Beagle","Australian Kelpie/Blue Lacy","Australian Kelpie/Border Collie","Australian Kelpie/Bull Terrier","Australian Kelpie/Chihuahua Shorthair","Australian Kelpie/Dachshund","Australian Kelpie/Finnish Spitz","Australian Kelpie/German Shepherd","Australian Kelpie/Labrador Retriever","Australian Kelpie/Miniature Pinscher","Australian Kelpie/Pit Bull","Australian Kelpie/Rat Terrier","Australian Kelpie/Shiba Inu","Australian Kelpie/Whippet")
+australian_shepherd_breeds <-c("Australian Shepherd", "Australian Shepherd Mix", "Australian Shepherd/Alaskan Malamute","Australian Shepherd/Anatol Shepherd","Australian Shepherd/Australian Cattle Dog","Australian Shepherd/Australian Kelpie","Australian Shepherd/Beagle","Australian Shepherd/Border Collie","Australian Shepherd/Boxer","Australian Shepherd/Cardigan Welsh Corgi","Australian Shepherd/Catahoula","Australian Shepherd/Chihuahua Shorthair","Australian Shepherd/Chow Chow","Australian Shepherd/Cocker Spaniel","Australian Shepherd/Collie Rough","Australian Shepherd/Collie Smooth","Australian Shepherd/Dachshund","Australian Shepherd/German Shepherd","Australian Shepherd/Greyhound","Australian Shepherd/Jack Russell Terrier","Australian Shepherd/Labrador Retriever","Australian Shepherd/Parson Russell Terrier","Australian Shepherd/Plott Hound","Australian Shepherd/Queensland Heeler","Australian Shepherd/Rhod Ridgeback","Australian Shepherd/Rottweiler","Australian Shepherd/Siberian Husky")
+basenji_breeds <-c("Basenji Mix","Basenji/Australian Cattle Dog","Basenji/Chihuahua Longhair","Basenji/Chihuahua Shorthair","Basenji/Jack Russell Terrier","Basenji/Rhod Ridgeback")
+basset_hound_breeds <-c("Basset Hound","Basset Hound Mix","Basset Hound/Australian Cattle Dog","Basset Hound/Australian Shepherd","Basset Hound/Beagle","Basset Hound/Beauceron","Basset Hound/Black/Tan Hound","Basset Hound/Border Collie","Basset Hound/Chinese Sharpei","Basset Hound/French Bulldog","Basset Hound/Golden Retriever","Basset Hound/Labrador Retriever","Basset Hound/Pit Bull","Basset Hound/Pointer")
+beagle_breeds <-c("Beagle","Beagle Mix","Beagle/Australian Cattle Dog","Beagle/Australian Kelpie","Beagle/Basset Hound","Beagle/Black Mouth Cur","Beagle/Boston Terrier","Beagle/Boxer","Beagle/Cardigan Welsh Corgi","Beagle/Chihuahua Longhair","Beagle/Chihuahua Shorthair","Beagle/Chinese Sharpei","Beagle/Cocker Spaniel","Beagle/Manchester Terrier","Beagle/Mastiff","Beagle/Miniature Pinscher","Beagle/Pit Bull","Beagle/Plott Hound","Beagle/Pointer","Beagle/Pug","Beagle/Queensland Heeler","Beagle/Rat Terrier","Beagle/Staffordshire","Beagle/Treeing Walker Coonhound","Beagle/Vizsla","Beagle/Whippet")
+black_mouth_cur_breeds <-c("Black Mouth Cur","Black Mouth Cur Mix","Black Mouth Cur/Australian Cattle Dog","Black Mouth Cur/Basset Hound","Black Mouth Cur/Blue Lacy","Black Mouth Cur/Boxer","Black Mouth Cur/Catahoula","Black Mouth Cur/Dachshund","Black Mouth Cur/Labrador Retriever","Black Mouth Cur/Mastiff","Black Mouth Cur/Pit Bull","Black Mouth Cur/Siberian Husky","Black Mouth Cur/Staffordshire")
+black_tan_hound_breeds <-c("Black/Tan Hound","Black/Tan Hound Mix","Black/Tan Hound/Beagle","Black/Tan Hound/Great Dane","Black/Tan Hound/Labrador Retriever")
+blue_lacy_breeds <-c("Blue Lacy","Blue Lacy Mix","Blue Lacy/Australian Cattle Dog","Blue Lacy/Australian Kelpie","Blue Lacy/Beagle","Blue Lacy/Black Mouth Cur","Blue Lacy/Labrador Retriever","Blue Lacy/Pit Bull","Blue Lacy/Pointer","Blue Lacy/Weimaraner")
+bluetick_hound_breeds <-c("Bluetick Hound","Bluetick Hound Mix","Bluetick Hound/Australian Cattle Dog","Bluetick Hound/Australian Kelpie","Bluetick Hound/Treeing Walker Coonhound")
+border_collie_breeds <-c("Border Collie","Border Collie Mix","Border Collie/Akita","Border Collie/Anatol Shepherd","Border Collie/Australian Cattle Dog","Border Collie/Australian Shepherd","Border Collie/Beagle","Border Collie/Bernese Mountain Dog","Border Collie/Boxer","Border Collie/Brittany","Border Collie/Bull Terrier","Border Collie/Canaan Dog","Border Collie/Catahoula","Border Collie/Chow Chow","Border Collie/Dachshund","Border Collie/Doberman Pinsch","Border Collie/English Pointer","Border Collie/German Shepherd","Border Collie/German Shorthair Pointer","Border Collie/Great Dane","Border Collie/Great Pyrenees","Border Collie/Greyhound","Border Collie/Jack Russell Terrier","Border Collie/Labrador Retriever","Border Collie/Mastiff","Border Collie/Miniature Pinscher","Border Collie/Parson Russell Terrier","Border Collie/Pit Bull","Border Collie/Pointer","Border Collie/Queensland Heeler","Border Collie/Staffordshire","Border Collie/Standard Schnauzer","Border Collie/Whippet")
+border_terrier_breeds <-c("Border Terrier","Border Terrier Mix","Border Terrier/Affenpinscher","Border Terrier/Cardigan Welsh Corgi","Border Terrier/Chihuahua Shorthair","Border Terrier/Dachshund","Border Terrier/Dachshund Wirehair","Border Terrier/Miniature Poodle","Border Terrier/Rat Terrier","Border Terrier/Shih Tzu","Border Terrier/Soft Coated Wheaten Terrier","Border Terrier/Yorkshire Terrier")
+boston_terrier_breeds <-c("Boston Terrier","Boston Terrier Mix","Boston Terrier/Chihuahua Shorthair","Boston Terrier/Dachshund","Boston Terrier/Pointer","Boston Terrier/Pug","Boston Terrier/Rat Terrier")
+boxer_breeds <-c("Boxer","Boxer Mix","Boxer/American Bulldog","Boxer/American Pit Bull Terrier","Boxer/American Staffordshire Terrier","Boxer/Australian Cattle Dog","Boxer/Beagle","Boxer/Black Mouth Cur","Boxer/Border Collie","Boxer/Boston Terrier","Boxer/Bulldog","Boxer/Bullmastiff","Boxer/Catahoula","Boxer/Chinese Sharpei","Boxer/Chow Chow","Boxer/English Bulldog","Boxer/Great Dane","Boxer/Great Pyrenees","Boxer/Greyhound","Boxer/Labrador Retriever","Boxer/Mastiff","Boxer/Miniature Poodle","Boxer/Neapolitan Mastiff","Boxer/Pit Bull","Boxer/Plott Hound","Boxer/Pointer","Boxer/Redbone Hound","Boxer/Rhod Ridgeback","Boxer/Staffordshire")
+bruss_griffon_breeds <-c("Bruss Griffon Mix","Bruss Griffon/Cairn Terrier","Bruss Griffon/Chihuahua Shorthair","Bruss Griffon/Dachshund","Bruss Griffon/Maltese","Bruss Griffon/Pug","Bruss Griffon/Yorkshire Terrier")
+bull_terrier_breeds <-c("Bull Terrier","Bull Terrier Miniature Mix","Bull Terrier Mix","Bull Terrier/Australian Kelpie","Bull Terrier/Boxer","Bull Terrier/Jack Russell Terrier")
+bulldog_breeds <-c("Bulldog","Bulldog Mix","Bulldog/Australian Cattle Dog","Bulldog/Boston Terrier","Bulldog/Labrador Retriever")
+cairn_terrier_breeds <-c("Cairn Terrier","Cairn Terrier Mix","Cairn Terrier/Affenpinscher","Cairn Terrier/Border Collie","Cairn Terrier/Border Terrier","Cairn Terrier/Chihuahua Longhair","Cairn Terrier/Chihuahua Shorthair","Cairn Terrier/Dachshund","Cairn Terrier/Italian Greyhound","Cairn Terrier/Miniature Poodle","Cairn Terrier/Miniature Schnauzer","Cairn Terrier/Scottish Terrier","Cairn Terrier/Yorkshir","Cardigan Welsh Corgi Mix","Cardigan Welsh Corgi/American Eskimo","Cardigan Welsh Corgi/Australian Cattle Dog","Cardigan Welsh Corgi/Australian Kelpie","Cardigan Welsh Corgi/Australian Shepherd","Cardigan Welsh Corgi/Beagle","Cardigan Welsh Corgi/Cairn Terrier","Cardigan Welsh Corgi/Cardigan Welsh Corgi","Cardigan Welsh Corgi/Chihuahua Longhair","Cardigan Welsh Corgi/Chihuahua Shorthair","Cardigan Welsh Corgi/Cocker Spaniel","Cardigan Welsh Corgi/Dachshund","Cardigan Welsh Corgi/English Setter","Cardigan Welsh Corgi/German Shepherd","Cardigan Welsh Corgi/Jack Russell Terrier","Cardigan Welsh Corgi/Miniature Pinscher","Cardigan Welsh Corgi/Pit Bull","Cardigan Welsh Corgi/Pointer")
+catahoula_breeds <-c("Catahoula","Catahoula Mix","Catahoula/Alaskan Husky","Catahoula/American Bulldog","Catahoula/American Pit Bull Terrier","Catahoula/Anatol Shepherd","Catahoula/Australian Cattle Dog","Catahoula/Australian Shepherd","Catahoula/Beagle","Catahoula/Boxer","Catahoula/Cardigan Welsh Corgi","Catahoula/Chinese Sharpei","Catahoula/English Coonhound","Catahoula/German Shepherd","Catahoula/Great Dane","Catahoula/Irish Wolfhound","Catahoula/Labrador Retriever","Catahoula/Pit Bull","Catahoula/Plott Hound","Catahoula/Pointer","Catahoula/Rottweiler","Catahoula/Siberian Husky","Catahoula/Staffordshire","Catahoula/Whippet")
+chihuahua_longhair_breeds <-c("Chihuahua Longhair","Chihuahua Longhair Mix","Chihuahua Longhair/Cairn Terrier","Chihuahua Longhair/Cardigan Welsh Corgi","Chihuahua Longhair/Chihuahua Shorthair","Chihuahua Longhair/Cocker Spaniel","Chihuahua Longhair/Dachshund","Chihuahua Longhair/Italian Greyhound","Chihuahua Longhair/Jack Russell Terrier","Chihuahua Longhair/Maltese","Chihuahua Longhair/Norfolk Terrier","Chihuahua Longhair/Papillon","Chihuahua Longhair/Pekingese","Chihuahua Longhair/Pomeranian","Chihuahua Longhair/Pug","Chihuahua Longhair/West Highland","Chihuahua Longhair/Yorkshire Terrier")
+chihuahua_shorthair_breeds <-c("Chihuahua Shorthair","Chihuahua Shorthair Mix","Chihuahua Shorthair/Affenpinscher","Chihuahua Shorthair/Australian Terrier","Chihuahua Shorthair/Basenji","Chihuahua Shorthair/Beagle","Chihuahua Shorthair/Border Collie","Chihuahua Shorthair/Border Terrier","Chihuahua Shorthair/Boston Terrier","Chihuahua Shorthair/Boxer","Chihuahua Shorthair/Cairn Terrier","Chihuahua Shorthair/Cardigan Welsh Corgi","Chihuahua Shorthair/Catahoula","Chihuahua Shorthair/Cavalier Span","Chihuahua Shorthair/Chinese Sharpei","Chihuahua Shorthair/Cirneco","Chihuahua Shorthair/Dachshund","Chihuahua Shorthair/Dachshund Wirehair","Chihuahua Shorthair/French Bulldog","Chihuahua Shorthair/German Shepherd","Chihuahua Shorthair/Italian Greyhound","Chihuahua Shorthair/Jack Russell Terrier","Chihuahua Shorthair/Manchester Terrier","Chihuahua Shorthair/Miniature Pinscher","Chihuahua Shorthair/Miniature Poodle","Chihuahua Shorthair/Miniature Schnauzer","Chihuahua Shorthair/Pekingese","Chihuahua Shorthair/Pembroke Welsh Corgi","Chihuahua Shorthair/Pomeranian","Chihuahua Shorthair/Pug","Chihuahua Shorthair/Queensland Heeler","Chihuahua Shorthair/Rat Terrier","Chihuahua Shorthair/Schipperke","Chihuahua Shorthair/Shiba Inu","Chihuahua Shorthair/Shih Tzu","Chihuahua Shorthair/Smooth Fox Terrier","Chihuahua Shorthair/Toy Fox Terrier","Chihuahua Shorthair/Welsh Terrier","Chihuahua Shorthair/Whippet","Chihuahua Shorthair/Wire Hair Fox Terrier","Chihuahua Shorthair/Yorkshire Terrier")
+chinese_sharpei_breeds <-c("Chinese Sharpei","Chinese Sharpei Mix","Chinese Sharpei/Airedale Terrier","Chinese Sharpei/American Staffordshire Terrier","Chinese Sharpei/Australian Cattle Dog","Chinese Sharpei/Basset Hound","Chinese Sharpei/Border Collie","Chinese Sharpei/Boxer","Chinese Sharpei/Chow Chow","Chinese Sharpei/Great Dane","Chinese Sharpei/Labrador Retriever","Chinese Sharpei/Pit Bull","Chinese Sharpei/Pointer","Chinese Sharpei/Rat Terrier","Chinese Sharpei/Rottweiler")
+chow_chow_breeds <-c("Chow Chow","Chow Chow Mix","Chow Chow/American Eskimo","Chow Chow/Australian Cattle Dog","Chow Chow/Basset Hound","Chow Chow/Border Collie","Chow Chow/German Shepherd","Chow Chow/Golden Retriever","Chow Chow/Labrador Retriever","Chow Chow/Pekingese","Chow Chow/Pit Bull","Chow Chow/Siberian Husky")
+cocker_spaniel_breeds <-c("Cocker Spaniel","Cocker Spaniel Mix","Cocker Spaniel/Australian Shepherd","Cocker Spaniel/Basset Hound","Cocker Spaniel/Chihuahua Longhair","Cocker Spaniel/Chihuahua Shorthair","Cocker Spaniel/Dachshund","Cocker Spaniel/Labrador Retriever","Cocker Spaniel/Miniature Poodle","Cocker Spaniel/Pembroke Welsh Corgi")
+collie_rough_breeds <-c("Collie Rough Mix","Collie Rough/Anatol Shepherd","Collie Rough/Australian Cattle Dog","Collie Rough/Australian Shepherd","Collie Rough/Chinese Sharpei","Collie Rough/Chow Chow","Collie Rough/German Shepherd","Collie Rough/Golden Retriever","Collie Rough/Great Pyrenees","Collie Rough/Labrador Retriever","Collie Rough/Pembroke Welsh Corgi","Collie Rough/Pointer")
+collie_smooth_breeds <-c("Collie Smooth","Collie Smooth Mix","Collie Smooth/Australian Kelpie","Collie Smooth/Boxer","Collie Smooth/German Shepherd","Collie Smooth/Golden Retriever","Collie Smooth/Jack Russell Terrier","Collie Smooth/Labrador Retriever","Collie Smooth/Siberian Husky")
+dachshund_longhair_breeds <-c("Dachshund Longhair","Dachshund Longhair Mix","Dachshund Longhair/Cairn Terrier","Dachshund Longhair/Cardigan Welsh Corgi","Dachshund Longhair/Chihuahua Longhair","Dachshund Longhair/Chihuahua Shorthair","Dachshund Longhair/Maltese","Dachshund Longhair/Miniature Poodle","Dachshund Longhair/Miniature Schnauzer","Dachshund Longhair/Pembroke Welsh Corgi","Dachshund Longhair/Pomeranian","Dachshund Longhair/Tibetan Spaniel","Dachshund Longhair/Toy Poodle")
+dachshund_wirehair_breeds <-c("Dachshund Wirehair","Dachshund Wirehair Mix","Dachshund Wirehair/Border Terrier","Dachshund Wirehair/Cairn Terrier","Dachshund Wirehair/Chihuahua Longhair","Dachshund Wirehair/Chihuahua Shorthair","Dachshund Wirehair/Miniature Poodle","Dachshund Wirehair/Miniature Schnauzer","Dachshund Wirehair/Norfolk Terrier","Dachshund Wirehair/Pbgv","Dachshund Wirehair/Shih Tzu","Dachshund Wirehair/Toy Poodle","Dachshund Wirehair/Yorkshire Terrier")
+dachshund_breeds <-c("Dachshund/Beagle","Dachshund/Belgian Malinois","Dachshund/Blue Lacy","Dachshund/Border Collie","Dachshund/Cardigan Welsh Corgi","Dachshund/Catahoula","Dachshund/Cavalier Span","Dachshund/Chihuahua Longhair","Dachshund/Chihuahua Shorthair","Dachshund/Chinese Sharpei","Dachshund/Dachshund","Dachshund/English Foxhound","Dachshund/German Pinscher","Dachshund/German Shepherd","Dachshund/Greyhound","Dachshund/Harrier","Dachshund/Havanese","Dachshund/Jack Russell Terrier","Dachshund/Labrador Retriever","Dachshund/Manchester Terrier","Dachshund/Miniature Pinscher","Dachshund/Miniature Poodle","Dachshund/Pembroke Welsh Corgi","Dachshund/Pit Bull","Dachshund/Pomeranian","Dachshund/Pug","Dachshund/Rat Terrier","Dachshund/Shetland Sheepdog","Dachshund/Shih Tzu","Dachshund/Whippet","Dachshund/Yorkshire Terrier")
+dalmation_breeds <-c("Dalmatian","Dalmatian Mix","Dalmatian/Australian Cattle Dog","Dalmatian/Boxer","Dalmatian/Labrador Retriever","Dalmatian/Plott Hound")
+doberman_pinsch <-c("Doberman Pinsch","Doberman Pinsch Mix","Doberman Pinsch/German Shepherd","Doberman Pinsch/Labrador Retriever","Doberman Pinsch/Pit Bull")
+dogo_argentino <-c("Dogo Argentino","Dogo Argentino Mix","Dogo Argentino/Labrador Retriever")
+dutch_shepherd_breeds <-c("Dutch Shepherd","Dutch Shepherd Mix","Dutch Shepherd/Anatol Shepherd","Dutch Shepherd/Labrador Retriever","Dutch Shepherd/Mastiff","Dutch Shepherd/Plott Hound")
+english_bulldog_breeds <-c("English Bulldog","English Bulldog Mix","English Bulldog/American Bulldog","English Bulldog/American Staffordshire Terrier","English Bulldog/Beagle")
+english_coonhound_breeds <-c("English Coonhound","English Coonhound Mix","English Coonhound/Border Collie","English Coonhound/German Shepherd","English Coonhound/Italian Greyhound")
+flat_coat_breeds <-c("Flat Coat Retriever Mix","Flat Coat Retriever/Australian Cattle Dog","Flat Coat Retriever/Chow Chow","Flat Coat Retriever/German Shepherd","Flat Coat Retriever/Golden Retriever","Flat Coat Retriever/Labrador Retriever","Flat Coat Retriever/Papillon")
+german_shepherd_breeds <-c("German Shepherd","German Shepherd Mix","German Shepherd/Akita","German Shepherd/Alaskan Husky","German Shepherd/Alaskan Malamute","German Shepherd/Anatol Shepherd","German Shepherd/Australian Cattle Dog","German Shepherd/Australian Kelpie","German Shepherd/Australian Shepherd","German Shepherd/Beagle","German Shepherd/Black Mouth Cur","German Shepherd/Black/Tan Hound","German Shepherd/Border Collie","German Shepherd/Boxer","German Shepherd/Bull Terrier","German Shepherd/Cardigan Welsh Corgi","German Shepherd/Catahoula","German Shepherd/Chinese Sharpei","German Shepherd/Chow Chow","German Shepherd/Collie Rough","German Shepherd/Collie Smooth","German Shepherd/Doberman Pinsch","German Shepherd/English Coonhound","German Shepherd/Golden Retriever","German Shepherd/Great Pyrenees","German Shepherd/Ibizan Hound","German Shepherd/Labrador Retriever","German Shepherd/Mastiff","German Shepherd/Nova Scotia Duck Tolling Retriever","German Shepherd/Pembroke Welsh Corgi","German Shepherd/Pit Bull","German Shepherd/Plott Hound","German Shepherd/Redbone Hound","German Shepherd/Rottweiler","German Shepherd/Siberian Husky","German Shepherd/Smooth Fox Terrier","German Shepherd/Vizsla","German Shepherd/Weimaraner","German Shepherd/Whippet")
+golden_retriever_breeds <-c("Golden Retriever","Golden Retriever Mix","Golden Retriever/Akita","Golden Retriever/Australian Cattle Dog","Golden Retriever/Australian Shepherd","Golden Retriever/Beagle","Golden Retriever/Bearded Collie","Golden Retriever/Border Collie","Golden Retriever/Catahoula","Golden Retriever/Chow Chow","Golden Retriever/Collie Rough","Golden Retriever/Dachshund","Golden Retriever/Finnish Spitz","Golden Retriever/German Shepherd","Golden Retriever/Great Pyrenees","Golden Retriever/Labrador Retriever","Golden Retriever/Pembroke Welsh Corgi")
+great_dane_breeds <-c("Great Dane","Great Dane Mix","Great Dane/Anatol Shepherd","Great Dane/Australian Cattle Dog","Great Dane/Boxer","Great Dane/Labrador Retriever","Great Dane/Mastiff","Great Dane/Pit Bull","Great Dane/Staffordshire")
+great_pyrenees_breeds <-c("Great Pyrenees","Great Pyrenees Mix","Great Pyrenees/Alaskan Husky","Great Pyrenees/American Bulldog","Great Pyrenees/Anatol Shepherd","Great Pyrenees/Australian Cattle Dog","Great Pyrenees/Australian Shepherd","Great Pyrenees/Border Collie","Great Pyrenees/Catahoula","Great Pyrenees/Chow Chow","Great Pyrenees/Collie Rough","Great Pyrenees/English Pointer","Great Pyrenees/English Setter","Great Pyrenees/German Shepherd","Great Pyrenees/Golden Retriever","Great Pyrenees/Labrador Retriever","Great Pyrenees/Plott Hound","Great Pyrenees/Pointer","Great Pyrenees/Queensland Heeler","Great Pyrenees/Rottweiler","Great Pyrenees/Standard Poodle")
+greyhound_breeds <-c("Greyhound Mix","Greyhound/Border Collie","Greyhound/Great Dane","Greyhound/Labrador Retriever","Greyhound/Pointer")
+harrier_breeds <-c("Harrier","Harrier Mix","Harrier/Catahoula","Harrier/Labrador Retriever","Harrier/Pointer")
+irish_terrier_breeds <-c("Irish Terrier Mix","Irish Terrier/Border Terrier","Irish Terrier/Labrador Retriever")
+italian_greyhound_breeds <-c("Italian Greyhound Mix","Italian Greyhound/Cavalier Span","Italian Greyhound/Chihuahua Shorthair")
+jack_russell_breeds <-c("Jack Russell Terrier","Jack Russell Terrier Mix","Jack Russell Terrier/Australian Cattle Dog","Jack Russell Terrier/Australian Shepherd","Jack Russell Terrier/Basset Hound","Jack Russell Terrier/Beagle","Jack Russell Terrier/Boston Terrier","Jack Russell Terrier/Brittany","Jack Russell Terrier/Cardigan Welsh Corgi","Jack Russell Terrier/Cavalier Span","Jack Russell Terrier/Chihuahua Shorthair","Jack Russell Terrier/Dachshund","Jack Russell Terrier/Dachshund Wirehair","Jack Russell Terrier/Italian Greyhound","Jack Russell Terrier/Labrador Retriever","Jack Russell Terrier/Miniature Poodle","Jack Russell Terrier/Pembroke Welsh Corgi","Jack Russell Terrier/Pit Bull","Jack Russell Terrier/Pointer","Jack Russell Terrier/Pug","Jack Russell Terrier/Rat Terrier","Jack Russell Terrier/Shetland Sheepdog","Jack Russell Terrier/Shih Tzu","Jack Russell Terrier/Standard Schnauzer","Jack Russell Terrier/Welsh Terrier","Jack Russell Terrier/Yorkshire Terrier")
+labrador_retriever_breeds <-c("Labrador Retriever","Labrador Retriever Mix","Labrador Retriever/Alaskan Husky","Labrador Retriever/American Bulldog","Labrador Retriever/American Foxhound","Labrador Retriever/American Pit Bull Terrier","Labrador Retriever/Anatol Shepherd","Labrador Retriever/Australian Cattle Dog","Labrador Retriever/Australian Kelpie","Labrador Retriever/Australian Shepherd","Labrador Retriever/Basset Hound","Labrador Retriever/Beagle","Labrador Retriever/Beauceron","Labrador Retriever/Black Mouth Cur","Labrador Retriever/Black/Tan Hound","Labrador Retriever/Bloodhound","Labrador Retriever/Blue Lacy","Labrador Retriever/Border Collie","Labrador Retriever/Boston Terrier","Labrador Retriever/Boxer","Labrador Retriever/Catahoula","Labrador Retriever/Chesa Bay Retr","Labrador Retriever/Chihuahua Shorthair","Labrador Retriever/Chinese Sharpei","Labrador Retriever/Chow Chow","Labrador Retriever/Cocker Spaniel","Labrador Retriever/Collie Smooth","Labrador Retriever/Dachshund","Labrador Retriever/Dalmatian","Labrador Retriever/Doberman Pinsch","Labrador Retriever/English Springer Spaniel","Labrador Retriever/Finnish Spitz","Labrador Retriever/Flat Coat Retriever","Labrador Retriever/German Shepherd","Labrador Retriever/German Shorthair Pointer","Labrador Retriever/Golden Retriever","Labrador Retriever/Great Dane","Labrador Retriever/Great Pyrenees","Labrador Retriever/Greyhound","Labrador Retriever/Irish Setter","Labrador Retriever/Jack Russell Terrier","Labrador Retriever/Labrador Retriever","Labrador Retriever/Mastiff","Labrador Retriever/Miniature Poodle","Labrador Retriever/Newfoundland","Labrador Retriever/Patterdale Terr","Labrador Retriever/Pit Bull","Labrador Retriever/Plott Hound","Labrador Retriever/Pointer","Labrador Retriever/Pug","Labrador Retriever/Queensland Heeler","Labrador Retriever/Rat Terrier","Labrador Retriever/Redbone Hound","Labrador Retriever/Rhod Ridgeback","Labrador Retriever/Rottweiler","Labrador Retriever/Saluki","Labrador Retriever/Shiba Inu","Labrador Retriever/Siberian Husky","Labrador Retriever/Smooth Fox Terrier","Labrador Retriever/Spanish Water Dog","Labrador Retriever/St. Bernard Rough Coat","Labrador Retriever/St. Bernard Smooth Coat","Labrador Retriever/Staffordshire","Labrador Retriever/Standard Poodle","Labrador Retriever/Standard Schnauzer","Labrador Retriever/Treeing Walker Coonhound","Labrador Retriever/Vizsla","Labrador Retriever/Weimaraner","Labrador Retriever/Whippet")
+lhasa_apso_breeds <-c("Lhasa Apso Mix","Lhasa Apso/Dachshund","Lhasa Apso/Jack Russell Terrier","Lhasa Apso/Miniature Poodle","Lhasa Apso/Miniature Schnauzer")
+lowchen_breeds <-c("Lowchen Mix","Lowchen/Miniature Poodle","Lowchen/Yorkshire Terrier")
+maltese_breeds <-c("Maltese","Maltese Mix","Maltese/Border Terrier","Maltese/Chihuahua Shorthair","Maltese/Jack Russell Terrier","Maltese/Miniature Poodle","Maltese/Toy Poodle","Maltese/Yorkshire Terrier")
+manchester_breeds <-c("Manchester Terrier Mix","Manchester Terrier/Australian Kelpie","Manchester Terrier/Beagle","Manchester Terrier/Chihuahua Longhair","Manchester Terrier/Chihuahua Shorthair","Manchester Terrier/Dachshund","Manchester Terrier/Jack Russell Terrier","Manchester Terrier/Labrador Retriever","Manchester Terrier/Pembroke Welsh Corgi","Manchester Terrier/Toy Fox Terrier")
+mastiff_breeds <-c("Mastiff","Mastiff Mix","Mastiff/Akita","Mastiff/American Pit Bull Terrier","Mastiff/Anatol Shepherd","Mastiff/Bloodhound","Mastiff/Boxer","Mastiff/Cane Corso","Mastiff/Chinese Sharpei","Mastiff/Dutch Shepherd","Mastiff/Labrador Retriever","Mastiff/Pit Bull","Mastiff/Rottweiler")
+miniature_pinscher_breeds <-c("Miniature Pinscher","Miniature Pinscher Mix","Miniature Pinscher/Chihuahua Shorthair","Miniature Pinscher/Dachshund","Miniature Pinscher/Maltese","Miniature Pinscher/Pug","Miniature Pinscher/Smooth Fox Terrier","Miniature Pinscher/Whippet")
+miniature_poodle_breeds <-c("Miniature Poodle","Miniature Poodle Mix","Miniature Poodle/Australian Cattle Dog","Miniature Poodle/Cairn Terrier","Miniature Poodle/Chihuahua Shorthair","Miniature Poodle/Cocker Spaniel","Miniature Poodle/Dachshund","Miniature Poodle/English Cocker Spaniel","Miniature Poodle/Golden Retriever","Miniature Poodle/Havanese","Miniature Poodle/Italian Greyhound","Miniature Poodle/Labrador Retriever","Miniature Poodle/Lhasa Apso","Miniature Poodle/Maltese","Miniature Poodle/Miniature Schnauzer","Miniature Poodle/Pomeranian","Miniature Poodle/Shih Tzu","Miniature Poodle/Yorkshire Terrier")
+miniature_schnauzer_breeds <-c("Miniature Schnauzer","Miniature Schnauzer Mix","Miniature Schnauzer/Australian Cattle Dog","Miniature Schnauzer/Border Collie","Miniature Schnauzer/Border Terrier","Miniature Schnauzer/Cairn Terrier","Miniature Schnauzer/Chihuahua Longhair","Miniature Schnauzer/Chihuahua Shorthair","Miniature Schnauzer/Dachshund","Miniature Schnauzer/Dachshund Longhair","Miniature Schnauzer/Jack Russell Terrier","Miniature Schnauzer/Maltese","Miniature Schnauzer/Miniature Poodle","Miniature Schnauzer/Scottish Terrier","Miniature Schnauzer/Shih Tzu","Miniature Schnauzer/West Highland","Miniature Schnauzer/Yorkshire Terrier")
+newfoundland_breeds <-c("Newfoundland Mix","Newfoundland/Australian Cattle Dog","Newfoundland/Border Collie","Newfoundland/Labrador Retriever","Newfoundland/Queensland Heeler")
+norfolk_terrier_breeds <-c("Norfolk Terrier","Norfolk Terrier Mix","Norfolk Terrier/Bruss Griffon","Norfolk Terrier/Cairn Terrier","Norfolk Terrier/Chihuahua Shorthair","Norfolk Terrier/Lhasa Apso","Norfolk Terrier/Pug","Norfolk Terrier/Standard Poodle","Norfolk Terrier/Yorkshire Terrier")
+norwich_breeds <-c("Norwich Terrier","Norwich Terrier Mix","Norwich Terrier/Border Terrier","Norwich Terrier/Cairn Terrier","Norwich Terrier/Yorkshire Terrier")
+papillon_breeds <-c("Papillon","Papillon Mix","Papillon/Chihuahua Shorthair","Papillon/Pomeranian","Papillon/Skye Terrier")
+parson_breeds <-c("Parson Russell Terrier","Parson Russell Terrier Mix","Parson Russell Terrier/Beagle","Parson Russell Terrier/Chihuahua Shorthair")
+pekingese_breeds <-c("Pekingese","Pekingese Mix","Pekingese/Catahoula","Pekingese/Chihuahua Shorthair","Pekingese/Maltese")
+pembroke_breeds <-c("Pembroke Welsh Corgi","Pembroke Welsh Corgi Mix","Pembroke Welsh Corgi/Anatol Shepherd","Pembroke Welsh Corgi/Chihuahua Longhair","Pembroke Welsh Corgi/Chihuahua Shorthair","Pembroke Welsh Corgi/Chinese Sharpei","Pembroke Welsh Corgi/Dachshund","Pembroke Welsh Corgi/German Shepherd","Pembroke Welsh Corgi/Golden Retriever","Pembroke Welsh Corgi/Pit Bull")
+pitbull_breeds <-c("Pit Bull","Pit Bull Mix","Pit Bull/American Foxhound","Pit Bull/Anatol Shepherd","Pit Bull/Australian Cattle Dog","Pit Bull/Basset Hound","Pit Bull/Black Mouth Cur","Pit Bull/Blue Lacy","Pit Bull/Boston Terrier","Pit Bull/Boxer","Pit Bull/Bulldog","Pit Bull/Cardigan Welsh Corgi","Pit Bull/Catahoula","Pit Bull/Chihuahua Shorthair","Pit Bull/Chinese Sharpei","Pit Bull/Chow Chow","Pit Bull/Dachshund","Pit Bull/Dalmatian","Pit Bull/Doberman Pinsch","Pit Bull/English Bulldog","Pit Bull/French Bulldog","Pit Bull/German Shepherd","Pit Bull/Labrador Retriever","Pit Bull/Mastiff","Pit Bull/Pharaoh Hound","Pit Bull/Plott Hound","Pit Bull/Pointer","Pit Bull/Pug","Pit Bull/Queensland Heeler","Pit Bull/Rat Terrier","Pit Bull/Rottweiler","Pit Bull/Weimaraner")
+plott_hound_breeds <-c("Plott Hound","Plott Hound Mix","Plott Hound/Beagle","Plott Hound/Blue Lacy","Plott Hound/Border Collie","Plott Hound/Boxer","Plott Hound/Bull Terrier","Plott Hound/Dachshund","Plott Hound/Dutch Shepherd","Plott Hound/German Shepherd","Plott Hound/Labrador Retriever","Plott Hound/Mastiff","Plott Hound/Pit Bull","Plott Hound/Rhod Ridgeback","Plott Hound/Rottweiler","Plott Hound/Whippet")
+pointer_breeds <-c("Pointer","Pointer Mix","Pointer/American Pit Bull Terrier","Pointer/Anatol Shepherd","Pointer/Australian Cattle Dog","Pointer/Basset Hound","Pointer/Border Collie","Pointer/Boxer","Pointer/Brittany","Pointer/Bull Terrier","Pointer/Catahoula","Pointer/Collie Smooth","Pointer/Harrier","Pointer/Ibizan Hound","Pointer/Jack Russell Terrier","Pointer/Labrador Retriever","Pointer/Pit Bull","Pointer/Queensland Heeler","Pointer/Rhod Ridgeback","Pointer/Staffordshire")
+pomeranian_breeds <-c("Pomeranian","Pomeranian Mix","Pomeranian/Border Terrier","Pomeranian/Chihuahua Longhair","Pomeranian/Chihuahua Shorthair","Pomeranian/Jack Russell Terrier")
+pug_breeds <-c("Pug","Pug Mix","Pug/Beagle","Pug/Border Terrier","Pug/Chihuahua Longhair","Pug/Chihuahua Shorthair","Pug/Cocker Spaniel","Pug/French Bulldog","Pug/Italian Greyhound","Pug/Labrador Retriever","Pug/Miniature Pinscher","Pug/Schipperke","Pug/Staffordshire")
+queensland_breeds <-c("Queensland Heeler","Queensland Heeler Mix","Queensland Heeler/Basset Hound","Queensland Heeler/Border Collie","Queensland Heeler/Cardigan Welsh Corgi","Queensland Heeler/Chihuahua Shorthair","Queensland Heeler/Dachshund","Queensland Heeler/Great Dane","Queensland Heeler/Great Pyrenees","Queensland Heeler/Pit Bull","Queensland Heeler/Pointer","Queensland Heeler/Shetland Sheepdog")
+rat_terrier_breeds <-c("Rat Terrier","Rat Terrier Mix","Rat Terrier/Basenji","Rat Terrier/Beagle","Rat Terrier/Border Collie","Rat Terrier/Boston Terrier","Rat Terrier/Cardigan Welsh Corgi","Rat Terrier/Chihuahua Shorthair","Rat Terrier/Dachshund","Rat Terrier/English Pointer","Rat Terrier/Labrador Retriever","Rat Terrier/Miniature Poodle","Rat Terrier/Pekingese","Rat Terrier/Pembroke Welsh Corgi","Rat Terrier/Pit Bull","Rat Terrier/Pointer","Rat Terrier/Pug","Rat Terrier/Smooth Fox Terrier")
+redbone_hound_breeds <-c("Redbone Hound","Redbone Hound Mix","Redbone Hound/Anatol Shepherd","Redbone Hound/Boxer","Redbone Hound/Dachshund","Redbone Hound/Labrador Retriever","Redbone Hound/Redbone Hound","Redbone Hound/Rhod Ridgeback")
+rod_ridgeback_breeds <-c("Rhod Ridgeback","Rhod Ridgeback Mix","Rhod Ridgeback/Boxer","Rhod Ridgeback/German Shepherd","Rhod Ridgeback/Harrier","Rhod Ridgeback/Labrador Retriever","Rhod Ridgeback/Pit Bull","Rhod Ridgeback/Plott Hound","Rhod Ridgeback/Pointer_")
+rottweiler_breeds <-c("Rottweiler","Rottweiler Mix","Rottweiler/Australian Cattle Dog","Rottweiler/Blue Lacy","Rottweiler/Doberman Pinsch","Rottweiler/German Shepherd","Rottweiler/Labrador Retriever","Rottweiler/Pit Bull","Rottweiler/Plott Hound","Rottweiler/Rhod Ridgeback","Rottweiler/Siberian Husky")
+saluki_breeds <-c("Saluki","Saluki Mix","Saluki/Doberman Pinsch","Saluki/Labrador Retriever")
+shetland_breeds <-c("Shetland Sheepdog Mix","Shetland Sheepdog/Border Collie","Shetland Sheepdog/Brittany","Shetland Sheepdog/Cavalier Span","Shetland Sheepdog/Chihuahua Longhair","Shetland Sheepdog/Dachshund Longhair")
+shiba_breeds <-c("Shiba Inu","Shiba Inu Mix","Shiba Inu/Australian Kelpie","Shiba Inu/German Shepherd","Shiba Inu/Siberian Husky")
+shihtzu_breeds <-c("Shih Tzu","Shih Tzu Mix","Shih Tzu/Bruss Griffon","Shih Tzu/Chihuahua Longhair","Shih Tzu/Chihuahua Shorthair","Shih Tzu/Dachshund","Shih Tzu/Miniature Poodle","Shih Tzu/Miniature Schnauzer","Shih Tzu/Norfolk Terrier","Shih Tzu/Toy Poodle","Shih Tzu/Yorkshire Terrier")
+siberian_husky_breeds <-c("Siberian Husky","Siberian Husky Mix","Siberian Husky/Alaskan Malamute","Siberian Husky/American Pit Bull Terrier","Siberian Husky/Australian Cattle Dog","Siberian Husky/Australian Shepherd","Siberian Husky/Border Collie","Siberian Husky/Cardigan Welsh Corgi","Siberian Husky/Catahoula","Siberian Husky/German Shepherd","Siberian Husky/Labrador Retriever","Siberian Husky/Pit Bull")
+silky_terrier_breeds <-c("Silky Terrier","Silky Terrier Mix","Silky Terrier/Maltese","Silky Terrier/Yorkshire Terrier")
+smooth_fox_terrier_breeds <-c("Smooth Fox Terrier","Smooth Fox Terrier Mix","Smooth Fox Terrier/Cardigan Welsh Corgi","Smooth Fox Terrier/Chihuahua Shorthair","Smooth Fox Terrier/Jack Russell Terrier","Smooth Fox Terrier/Labrador Retriever","Smooth Fox Terrier/Rat Terrier")
+wheaten_terrier_breeds <-c("Soft Coated Wheaten Terrier","Soft Coated Wheaten Terrier Mix","Soft Coated Wheaten Terrier/Border Terrier","Soft Coated Wheaten Terrier/Chihuahua Shorthair","Soft Coated Wheaten Terrier/Labrador Retriever","Soft Coated Wheaten Terrier/Miniature Poodle","Soft Coated Wheaten Terrier/Standard Poodle","Soft Coated Wheaten Terrier/Yorkshire Terrier")
+staffordshire_breeds <-c("Staffordshire","Staffordshire Mix","Staffordshire/Australian Cattle Dog","Staffordshire/Basset Hound","Staffordshire/Beagle","Staffordshire/Blue Lacy","Staffordshire/Border Collie","Staffordshire/Boston Terrier","Staffordshire/Boxer","Staffordshire/English Bulldog","Staffordshire/French Bulldog","Staffordshire/Labrador Retriever")
+yorkshire_terrier_breeds <-c("Yorkshire Terrier","Yorkshire Terrier Mix","Yorkshire Terrier/Australian Terrier","Yorkshire Terrier/Border Terrier","Yorkshire Terrier/Bruss Griffon","Yorkshire Terrier/Cairn Terrier","Yorkshire Terrier/Chihuahua Longhair","Yorkshire Terrier/Chihuahua Shorthair","Yorkshire Terrier/Chinese Crested","Yorkshire Terrier/Dachshund","Yorkshire Terrier/Havanese","Yorkshire Terrier/Lhasa Apso","Yorkshire Terrier/Maltese","Yorkshire Terrier/Miniature Poodle","Yorkshire Terrier/Miniature Schnauzer","Yorkshire Terrier/Norfolk Terrier","Yorkshire Terrier/Parson Russell Terrier","Yorkshire Terrier/Pomeranian","Yorkshire Terrier/Rat Terrier","Yorkshire Terrier/Shih Tzu","Yorkshire Terrier/Soft Coated Wheaten Terrier","Yorkshire Terrier/Yorkshire Terrier")
+wirehairfox_breeds <-c("Wire Hair Fox Terrier Mix","Wire Hair Fox Terrier/Beagle","Wire Hair Fox Terrier/Chihuahua Shorthair","Wire Hair Fox Terrier/Dachshund","Wire Hair Fox Terrier/Miniature Schnauzer")
+whippet_breeds <-c("Whippet","Whippet Mix","Whippet/Anatol Shepherd","Whippet/Australian Kelpie","Whippet/Beagle","Whippet/Borzoi","Whippet/Chihuahua Shorthair","Whippet/Dachshund","Whippet/Jack Russell Terrier","Whippet/Labrador Retriever","Whippet/Shetland Sheepdog")
+west_highland_breeds <-c("West Highland","West Highland Mix","West Highland/Miniature Poodle","West Highland/Toy Fox Terrier")
+vizsla_breeds <-c("Vizsla","Vizsla Mix","Vizsla/Beagle","Vizsla/Boxer","Vizsla/Catahoula","Vizsla/Dachshund","Vizsla/German Shepherd","Vizsla/Golden Retriever","Vizsla/Greyhound","Vizsla/Labrador Retriever","Vizsla/Staffordshire")
+treeing_walker_breeds <-c("Treeing Walker Coonhound","Treeing Walker Coonhound Mix","Treeing Walker Coonhound/Australian Cattle Dog","Treeing Walker Coonhound/Dachshund","Treeing Walker Coonhound/German Shepherd","Treeing Walker Coonhound/Labrador Retrieve")
+toy_poodle_breeds <-c("Toy Poodle","Toy Poodle Mix","Toy Poodle/Miniature Schnauzer","Toy Poodle/Yorkshire Terrier")
+standard_schnauzer_breeds <-c("Standard Schnauzer","Standard Schnauzer Mix","Standard Schnauzer/Labrador Retriever","Standard Schnauzer/Miniature Poodle","Standard Schnauzer/Soft Coated Wheaten Terrier","Standard Schnauzer/Standard Poodle")
+standard_poodle_breeds <-c("Standard Poodle","Standard Poodle Mix","Standard Poodle/Labrador Retriever","Standard Poodle/Whippet","Standard Schnauzer")
+
+
+
+# Create a new column "CombinedBreed" for dogs
+breed_counts_df <- breed_counts_df %>%
+  mutate(
+    CombinedBreed = case_when(
+      breed %in% husky_breeds ~ "Husky Mix",
+      breed %in% airedale_breeds ~ "Airedale Terrier",
+      breed %in% akita_breeds ~ "Akita Mix",
+      breed %in% alaskan_malamute_breeds ~ "Alaskan Malamute Mix",
+      breed %in% american_bulldog_breeds ~ "American Bulldog Mix",
+      breed %in% anatol_shepherd_breeds ~ "Anatol Shepherd Mix",
+      breed %in% australian_cattle_breeds ~ "Australian Cattle Dog Mix",
+      breed %in% australian_kelpie_breeds ~ "Australian Kelpie Mix",
+      breed %in% australian_shepherd_breeds ~ "Australian Shepherd Mix",
+      breed %in% basenji_breeds ~ "Basenji Mix",
+      breed %in% basset_hound_breeds ~ "Basset Hound Mix",
+      breed %in% beagle_breeds ~ "Beagle Mix",
+      breed %in% black_mouth_cur_breeds ~ "Black Mouth Cur Mix",
+      breed %in% black_tan_hound_breeds ~ "Black/Tan Hound Mix",
+      breed %in% blue_lacy_breeds ~ "Blue Lacy Mix",
+      breed %in% bluetick_hound_breeds ~ "Bluetick Mix",
+      breed %in% border_collie_breeds ~ "Border Collie Mix",
+      breed %in% border_terrier_breeds ~ "Border Terrier Mix",
+      breed %in% boxer_breeds ~ "Boxer Mix",
+      breed %in% bruss_griffon_breeds ~ "Bruss Griffon Mix",
+      breed %in% bull_terrier_breeds ~ "Bull Terrier Mix",
+      breed %in% bulldog_breeds ~ "Bulldog Mix",
+      breed %in% cairn_terrier_breeds ~ "Cairn Terrier Mix",
+      breed %in% catahoula_breeds ~ "Catahoula Mix",
+      breed %in% chihuahua_longhair_breeds ~ "Chihuahua Longhair Mix",
+      breed %in% chihuahua_shorthair_breeds ~ "Chihuahua Shorthair Mix",
+      breed %in% chinese_sharpei_breeds ~ "Chinese Sharpei Mix",
+      breed %in% chow_chow_breeds ~ "Chow Chow Mix",
+      breed %in% cocker_spaniel_breeds ~ "Cocker Spaniel Mix",
+      breed %in% collie_rough_breeds ~ "Collie Rough Mix",
+      breed %in% collie_smooth_breeds ~ "Collie Smooth Mix",
+      breed %in% dachshund_longhair_breeds ~ "Dachshund Longhair Mix",
+      breed %in% dachshund_wirehair_breeds ~ "Dachshund Wirehair Mix",
+      breed %in% dachshund_breeds ~ "Dachshund Mix",
+      breed %in% dalmation_breeds ~ "Dalmation Mix",
+      breed %in% doberman_pinsch ~ "Doberman Pinsch Mix",
+      breed %in% dogo_argentino ~ "Bluetick Mix",
+      breed %in% dutch_shepherd_breeds ~ "Dutch Shepherd Mix",
+      breed %in% english_bulldog_breeds ~ "English Bulldog Mix",
+      breed %in% english_coonhound_breeds ~ "English Coonhound Mix",
+      breed %in% flat_coat_breeds ~ "Flat Coat Mix",
+      breed %in% german_shepherd_breeds ~ "German Shepherd Mix",
+      breed %in% golden_retriever_breeds ~ "Golden Retriever Mix",
+      breed %in% great_dane_breeds ~ "Bluetick Mix",
+      breed %in% great_pyrenees_breeds ~ "Great Pyrenees Mix",
+      breed %in% greyhound_breeds ~ "Greyhound Mix",
+      breed %in% jack_russell_breeds ~ "Jack Russell Terrier Mix",
+      breed %in% labrador_retriever_breeds ~ "Labrador Retriever Mix",
+      breed %in% lhasa_apso_breeds ~ "Lhasa Apso Mix",
+      breed %in% lowchen_breeds ~ "Lowchen Mix",
+      breed %in% maltese_breeds ~ "Maltese Mix",
+      breed %in% manchester_breeds ~ "Manchester Terrier Mix",
+      breed %in% mastiff_breeds ~ "Mastiff Mix",
+      breed %in% miniature_pinscher_breeds ~ "Miniature Pinscher Mix",
+      breed %in% miniature_poodle_breeds ~ "Miniature Poodle Mix",
+      breed %in% miniature_schnauzer_breeds ~ "Miniature Schnauzer Mix",
+      breed %in% newfoundland_breeds ~ "Newfoundland Mix",
+      breed %in% norfolk_terrier_breeds ~ "Norfolk Terrier Mix",
+      breed %in% norwich_breeds ~ "Norwich Terrier Mix",
+      breed %in% papillon_breeds ~ "Papillon Mix",
+      breed %in% parson_breeds ~ "Parson Russell Terrier Mix",
+      breed %in% pekingese_breeds ~ "Pekingese Mix",
+      breed %in% pembroke_breeds ~ "Pembroke Welsh Corgi Mix",
+      breed %in% pitbull_breeds ~ "Pitbull Mix",
+      breed %in% plott_hound_breeds ~ "Plot Hound Mix",
+      breed %in% pointer_breeds ~ "Pointer Mix",
+      breed %in% pomeranian_breeds ~ "Pomeranian Mix",
+      breed %in% pug_breeds ~ "Pug Mix",
+      breed %in% queensland_breeds ~ "Queensland Heeler Mix",
+      breed %in% rat_terrier_breeds ~ "Rat Terrier Mix",
+      breed %in% redbone_hound_breeds ~ "Redbone Hound Mix",
+      breed %in% rottweiler_breeds ~ "Rottweiler Mix",
+      breed %in% saluki_breeds ~ "Saluki Mix",
+      breed %in% shetland_breeds ~ "Shetland Sheepdog Mix",
+      breed %in% shiba_breeds ~ "Shiba Inu Mix",
+      breed %in% shihtzu_breeds ~ "Shih Tzu Mix",
+      breed %in% siberian_husky_breeds ~ "Siberian Husky Mix",
+      breed %in% silky_terrier_breeds ~ "Silky Terrier Mix",
+      breed %in% smooth_fox_terrier_breeds ~ "Smooth Fox Terrier Mix",
+      breed %in% staffordshire_breeds ~ "Staffordshire Mix",
+      breed %in% standard_poodle_breeds ~ "Standard Poodle Mix",
+      breed %in% standard_schnauzer_breeds ~ "Standard Schnauzer Mix",
+      breed %in% toy_poodle_breeds ~ "Toy Poodle Mix",
+      breed %in% treeing_walker_breeds ~ "Treeing Walker Mix",
+      breed %in% vizsla_breeds ~ "Vizsla Mix",
+      breed %in% west_highland_breeds ~ "West Highland Mix",
+      breed %in% whippet_breeds ~ "Whippet Mix",
+      breed %in% wirehairfox_breeds ~ "Wire Hair Fox Mix",
+      breed %in% yorkshire_terrier_breeds ~ "Yorkshire Terrier Mix",
+      
+      TRUE ~ breed  # Keep the original breed for other breeds
+    )
+  )
+
+# Group the data by "CombinedBreed" and summarize counts
+combined_counts <- breed_counts_df %>%
+  group_by(CombinedBreed) %>%
+  summarize(CombinedCount = sum(count))
+
+# Optionally, you can remove the original "breed" and "count" columns
+# breed_counts_df <- breed_counts_df %>%
+#   select(-breed, -count)
+
+# View the resulting table with combined counts
+print(combined_counts)
+
+```
+
+```{r}
+adoption_dat <- adoption_dat %>%
+  mutate(
+    CombinedBreed = case_when(
+      breed %in% husky_breeds ~ "Husky Mix",
+      breed %in% airedale_breeds ~ "Airedale Terrier",
+      breed %in% akita_breeds ~ "Akita Mix",
+      breed %in% alaskan_malamute_breeds ~ "Alaskan Malamute Mix",
+      breed %in% american_bulldog_breeds ~ "American Bulldog Mix",
+      breed %in% anatol_shepherd_breeds ~ "Anatol Shepherd Mix",
+      breed %in% australian_cattle_breeds ~ "Australian Cattle Dog Mix",
+      breed %in% australian_kelpie_breeds ~ "Australian Kelpie Mix",
+      breed %in% australian_shepherd_breeds ~ "Australian Shepherd Mix",
+      breed %in% basenji_breeds ~ "Basenji Mix",
+      breed %in% basset_hound_breeds ~ "Basset Hound Mix",
+      breed %in% beagle_breeds ~ "Beagle Mix",
+      breed %in% black_mouth_cur_breeds ~ "Black Mouth Cur Mix",
+      breed %in% black_tan_hound_breeds ~ "Black/Tan Hound Mix",
+      breed %in% blue_lacy_breeds ~ "Blue Lacy Mix",
+      breed %in% bluetick_hound_breeds ~ "Bluetick Mix",
+      breed %in% border_collie_breeds ~ "Border Collie Mix",
+      breed %in% border_terrier_breeds ~ "Border Terrier Mix",
+      breed %in% boxer_breeds ~ "Boxer Mix",
+      breed %in% bruss_griffon_breeds ~ "Bruss Griffon Mix",
+      breed %in% bull_terrier_breeds ~ "Bull Terrier Mix",
+      breed %in% bulldog_breeds ~ "Bulldog Mix",
+      breed %in% cairn_terrier_breeds ~ "Cairn Terrier Mix",
+      breed %in% catahoula_breeds ~ "Catahoula Mix",
+      breed %in% chihuahua_longhair_breeds ~ "Chihuahua Longhair Mix",
+      breed %in% chihuahua_shorthair_breeds ~ "Chihuahua Shorthair Mix",
+      breed %in% chinese_sharpei_breeds ~ "Chinese Sharpei Mix",
+      breed %in% chow_chow_breeds ~ "Chow Chow Mix",
+      breed %in% cocker_spaniel_breeds ~ "Cocker Spaniel Mix",
+      breed %in% collie_rough_breeds ~ "Collie Rough Mix",
+      breed %in% collie_smooth_breeds ~ "Collie Smooth Mix",
+      breed %in% dachshund_longhair_breeds ~ "Dachshund Longhair Mix",
+      breed %in% dachshund_wirehair_breeds ~ "Dachshund Wirehair Mix",
+      breed %in% dachshund_breeds ~ "Dachshund Mix",
+      breed %in% dalmation_breeds ~ "Dalmation Mix",
+      breed %in% doberman_pinsch ~ "Doberman Pinsch Mix",
+      breed %in% dogo_argentino ~ "Bluetick Mix",
+      breed %in% dutch_shepherd_breeds ~ "Dutch Shepherd Mix",
+      breed %in% english_bulldog_breeds ~ "English Bulldog Mix",
+      breed %in% english_coonhound_breeds ~ "English Coonhound Mix",
+      breed %in% flat_coat_breeds ~ "Flat Coat Mix",
+      breed %in% german_shepherd_breeds ~ "German Shepherd Mix",
+      breed %in% golden_retriever_breeds ~ "Golden Retriever Mix",
+      breed %in% great_dane_breeds ~ "Bluetick Mix",
+      breed %in% great_pyrenees_breeds ~ "Great Pyrenees Mix",
+      breed %in% greyhound_breeds ~ "Greyhound Mix",
+      breed %in% jack_russell_breeds ~ "Jack Russell Terrier Mix",
+      breed %in% labrador_retriever_breeds ~ "Labrador Retriever Mix",
+      breed %in% lhasa_apso_breeds ~ "Lhasa Apso Mix",
+      breed %in% lowchen_breeds ~ "Lowchen Mix",
+      breed %in% maltese_breeds ~ "Maltese Mix",
+      breed %in% manchester_breeds ~ "Manchester Terrier Mix",
+      breed %in% mastiff_breeds ~ "Mastiff Mix",
+      breed %in% miniature_pinscher_breeds ~ "Miniature Pinscher Mix",
+      breed %in% miniature_poodle_breeds ~ "Miniature Poodle Mix",
+      breed %in% miniature_schnauzer_breeds ~ "Miniature Schnauzer Mix",
+      breed %in% newfoundland_breeds ~ "Newfoundland Mix",
+      breed %in% norfolk_terrier_breeds ~ "Norfolk Terrier Mix",
+      breed %in% norwich_breeds ~ "Norwich Terrier Mix",
+      breed %in% papillon_breeds ~ "Papillon Mix",
+      breed %in% parson_breeds ~ "Parson Russell Terrier Mix",
+      breed %in% pekingese_breeds ~ "Pekingese Mix",
+      breed %in% pembroke_breeds ~ "Pembroke Welsh Corgi Mix",
+      breed %in% pitbull_breeds ~ "Pitbull Mix",
+      breed %in% plott_hound_breeds ~ "Plot Hound Mix",
+      breed %in% pointer_breeds ~ "Pointer Mix",
+      breed %in% pomeranian_breeds ~ "Pomeranian Mix",
+      breed %in% pug_breeds ~ "Pug Mix",
+      breed %in% queensland_breeds ~ "Queensland Heeler Mix",
+      breed %in% rat_terrier_breeds ~ "Rat Terrier Mix",
+      breed %in% redbone_hound_breeds ~ "Redbone Hound Mix",
+      breed %in% rottweiler_breeds ~ "Rottweiler Mix",
+      breed %in% saluki_breeds ~ "Saluki Mix",
+      breed %in% shetland_breeds ~ "Shetland Sheepdog Mix",
+      breed %in% shiba_breeds ~ "Shiba Inu Mix",
+      breed %in% shihtzu_breeds ~ "Shih Tzu Mix",
+      breed %in% siberian_husky_breeds ~ "Siberian Husky Mix",
+      breed %in% silky_terrier_breeds ~ "Silky Terrier Mix",
+      breed %in% smooth_fox_terrier_breeds ~ "Smooth Fox Terrier Mix",
+      breed %in% staffordshire_breeds ~ "Staffordshire Mix",
+      breed %in% standard_poodle_breeds ~ "Standard Poodle Mix",
+      breed %in% standard_schnauzer_breeds ~ "Standard Schnauzer Mix",
+      breed %in% toy_poodle_breeds ~ "Toy Poodle Mix",
+      breed %in% treeing_walker_breeds ~ "Treeing Walker Mix",
+      breed %in% vizsla_breeds ~ "Vizsla Mix",
+      breed %in% west_highland_breeds ~ "West Highland Mix",
+      breed %in% whippet_breeds ~ "Whippet Mix",
+      breed %in% wirehairfox_breeds ~ "Wire Hair Fox Mix",
+      breed %in% yorkshire_terrier_breeds ~ "Yorkshire Terrier Mix",
+      
+      TRUE ~ breed  # Keep the original breed for other breeds
+    )
+  )
+
+# Group the data by "CombinedBreed" and summarize counts
+#adoption_dat <- breed_counts_df %>%
+  #group_by(CombinedBreed) %>%
+  #summarize(CombinedCount = sum(count))
+```
+
+```{r}
+# shinyApp(ui = ui, server = server)
+```
+
+To deploy the Shiny app, you can follow these steps:
+
+1\. Save the Shiny app code in a separate R script file (e.g., `my_shiny_app.R`).
+
+2\. Choose a deployment platform such as Shinyapps.io or RStudio Connect.
+
+3\. Follow the deployment instructions provided by your chosen platform to publish the app.
+
+4\. Once the app is deployed, you can access it through the provided URL.
+
+```{r}
+#shiny::runApp("path_to_app.R")
+```
+
+```{r}
+#library(shiny)
+#library(ggplot2)
+#library(rsconnect)
+
+
+#ui <- fluidPage(
+#  titlePanel("Interactive Bar Chart"),
+#  sidebarLayout(
+#    sidebarPanel(
+#      checkboxGroupInput("color_options", "Select Colors", choices = unique(color_counts_df$color))
+#    ),
+#    mainPanel(
+#      plotOutput("barChart")
+#    )
+#  )
+#)
+
+#server <- function(input, output) {
+#  output$barChart <- renderPlot({
+    # Filter data based on user selection
+#    selected_colors <- input$color_options
+#    filtered_data <- subset(color_counts_df, color %in% selected_colors)
+    
+    # Create an interactive bar chart with multiple bars
+#    ggplot(filtered_data, aes(x = color, y = count, fill = color)) +
+#      geom_bar(stat = "identity") +
+#      xlab("Color") +
+#      ylab("Adoption Count") +
+#      ggtitle("Adoption by Color")
+#  })
+#}
+
+#shinyApp(ui = ui, server = server)
+#shinyApp(ui, server)
+```
+
+```{r}
+library(shiny)
+library(ggplot2)
+
+
+ui <- fluidPage(
+  titlePanel("Interactive Bar Chart"),
+
+  sidebarLayout(
+    sidebarPanel(
+      checkboxGroupInput("breed_options", "Select Breeds", choices = unique(combined_counts$CombinedBreed))
+    ),
+    mainPanel(
+      plotOutput("barChart")
+   )
+  )
+)
+
+server <- function(input, output) {
+  output$barChart <- renderPlot({
+    # Filter data based on user selection
+    selected_breeds <- input$breed_options
+    filtered_data <- subset(combined_counts, CombinedBreed %in% selected_breeds)
+    
+    # Create an interactive bar chart with multiple bars
+    ggplot(filtered_data, aes(x = CombinedBreed, y = CombinedCount, fill = CombinedBreed)) +
+      geom_bar(stat = "identity") +
+      xlab("Mixed Breed") +
+      ylab("Adoption Count") +
+      ggtitle("Adoptions by Mixed Breed")
+  })
+}
+
+shinyApp(ui = ui, server = server)
+#shinyApp(ui, server)
+#library(quarto)
+#quarto_publish_app(server = "shinyapps.io")
+#rsconnect::deployApp(appDir = "animalshelterwork.qmd")
+```
+
+```{r}
+outcomesex_counts <- table(adoptions$sex_upon_outcome)
+```
+
+```{r}
+outcomesex_counts_df <- data.frame(
+  outcomesex = names(outcomesex_counts),
+  count = as.vector(outcomesex_counts)
+)
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(outcomesex_counts_df, aes(x = outcomesex, y = count)) +
+  geom_bar(stat = "identity", fill = "lightblue") +
+  xlab("Sex") +
+  ylab("Outtake Count") +
+  ggtitle("Sex at Outcome")
+```
+
+```{r}
+library(dplyr)
+nonadoptions <- adoption_dat %>%
+  filter(adoption_dat$outcome_type != "Adoption")
+```
+
+```{r}
+nonoutcomesex_counts <- table(nonadoptions$sex_upon_outcome)
+```
+
+```{r}
+nonoutcomesex_counts_df <- data.frame(
+  nonoutcomesex = names(nonoutcomesex_counts),
+  count = as.vector(nonoutcomesex_counts)
+)
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(nonoutcomesex_counts_df, aes(x = nonoutcomesex, y = count)) +
+  geom_bar(stat = "identity", fill = "lightblue") +
+  xlab("Sex") +
+  ylab("Non Adoption Count") +
+  ggtitle("Sex at Nonadoption")
+```
+
+```{r}
+library(plotly)
+selected_breeds <- unique(combined_counts$CombinedBreed)  # Replace with your selected breeds
+filtered_data <- subset(combined_counts, CombinedBreed %in% selected_breeds)
+
+# Create an interactive bar chart with Plotly
+plot_ly(data = filtered_data, x = ~CombinedBreed, y = ~CombinedCount, type = "bar") %>%
+  layout(
+    xaxis = list(title = "Mixed Breed"),
+    yaxis = list(title = "Adoption Count"),
+    title = "Adoptions by Mixed Breed"
+  )
+```
+
+```{r}
+#ibrary(ggplot2)
+
+# Create a box plot to visualize length of stay by breed
+#ggplot(adoptions, aes(x = breed, y = time_in_shelter_days)) +
+ # geom_boxplot() +
+  #xlab("Breed") +
+ # ylab("Length of Stay (Days)") +
+#  ggtitle("Length of Stay by Breed")
+
+# Create a violin plot to visualize length of stay by breed
+#ggplot(adoptions, aes(x = breed, y = time_in_shelter_days)) +
+ # geom_violin() +
+  #xlab("Breed") +
+  #ylab("Length of Stay (Days)") +
+  #ggtitle("Length of Stay by Breed")
+```
+
+```{r}
+library(dplyr)
+catdata <- adoption_dat %>%
+  filter(adoption_dat$animal_type == "Cat")
+```
+
+```{r}
+catbreed_counts <- table(catdata$breed)
+```
+
+```{r}
+catbreed_counts_df <- data.frame(
+  catbreed = names(catbreed_counts),
+  count = as.vector(catbreed_counts)
+)
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(catbreed_counts_df, aes(x = catbreed, y = count)) +
+  geom_bar(stat = "identity", fill = "lightskyblue1", color = "blue4") +
+  xlab("Cat Breed") +
+  ylab("Count") +
+  ggtitle("Cat breed")
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+library(ggplot2)
+
+# Create a box plot to visualize length of stay by breed
+ggplot(catdata, aes(x = breed, y = time_in_shelter_days)) +
+  geom_boxplot() +
+  xlab("Breed") +
+  ylab("Length of Stay (Days)") +
+  ggtitle("Length of Stay by Breed")
+
+# Create a violin plot to visualize length of stay by breed
+ggplot(catdata, aes(x = breed, y = time_in_shelter_days)) +
+  geom_violin() +
+  xlab("Breed") +
+  ylab("Length of Stay (Days)") +
+  ggtitle("Length of Stay by Breed") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+library(ggplot2)
+
+# Create a box plot to visualize length of stay by breed
+ggplot(catdata, aes(x = age_upon_outcome_age_group, y = time_in_shelter_days)) +
+  geom_boxplot() +
+  xlab("age group") +
+  ylab("Length of Stay (Days)") +
+  ggtitle("Length of Stay by age group")
+
+# Create a violin plot to visualize length of stay by breed
+ggplot(catdata, aes(x = age_upon_outcome_age_group, y = time_in_shelter_days)) +
+  geom_violin() +
+  xlab("age group") +
+  ylab("Length of Stay (Days)") +
+  ggtitle("Length of Stay by age group") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+This shows the length of stay based on age groups. This data can see which animals are staying longer in the shelters and how to increase attention on the animals that are staying for longer periods of time. Can also do research on costs of caring for animals every day & why it is important to adopt them out to open up space & finances.
+
+You can interact with the Shiny app \[here\](https://breedsapp/R).
