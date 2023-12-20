@@ -1,0 +1,825 @@
+---
+title: "Cat Data"
+#format: html
+#output:
+  #quarto::quarto_shiny
+runtime: shiny
+output: html_document
+---
+
+## 
+
+## Animal Shelter Cat Trends
+
+```{r}
+library(ggplot2)
+library(dplyr)
+```
+
+```{r}
+adoption_dat <- read.csv("aac_intakes_outcomes.csv")
+```
+
+```{r}
+library(dplyr)
+catdata <- adoption_dat %>%
+  filter(adoption_dat$animal_type == "Cat")
+
+catbreed_counts <- table(catdata$breed)
+
+catbreed_counts_df <- data.frame(
+  catbreed = names(catbreed_counts),
+  count = as.vector(catbreed_counts)
+)
+```
+
+```{r}
+catlos <- read.csv("catlos.csv")
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(catlos, aes(x = Breed, y = avg_los)) +
+  geom_bar(stat = "identity", fill = "lightskyblue1", color = "blue4") +
+  xlab("Cat Breed") +
+  ylab("Average Length of Stay (days)") +
+  ggtitle("Cat Breed by Length of Stay") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+library(shiny)
+library(ggplot2)
+
+
+ui <- fluidPage(
+  titlePanel("Interactive Breed Chart"),
+
+  sidebarLayout(
+    sidebarPanel(
+      checkboxGroupInput("breed_options", "Select Breeds", choices = unique(catlos$Breed))
+    ),
+    mainPanel(
+      plotOutput("barChart")
+   )
+  )
+)
+
+server <- function(input, output) {
+  output$barChart <- renderPlot({
+    # Filter data based on user selection
+    selected_breeds <- input$breed_options
+    filtered_data <- subset(catlos, Breed %in% selected_breeds)
+    
+    # Create an interactive bar chart with multiple bars
+    ggplot(filtered_data, aes(x = Breed, y = avg_los, fill = Breed)) +
+      geom_bar(stat = "identity") +
+      xlab("Mixed Breed") +
+      ylab("Average Length of Stay") +
+      ggtitle("Average Length of Stay by Mixed Breed")
+  })
+}
+
+shinyApp(ui = ui, server = server)
+#shinyApp(ui, server)
+#library(quarto)
+#quarto_publish_app(server = "shinyapps.io")
+#rsconnect::deployApp(appDir = "animalshelterwork.qmd")
+```
+
+```{r}
+library(dplyr)
+
+american_curl_shorthair_breeds <- c("American Curl Shorthair","American Curl Shorthair Mix","American Curl Shorthair/Siamese")
+angora_breeds <- c("Angora Mix","Angora/Persian")
+bengal_breeds <- c("Bengal","Bengal Mix","Bengal/Domestic Shorthair")
+british_shorthair_breeds <- c("British Shorthair","British Shorthair Mix")
+devon_rex <- c("Devon Rex","Devon Rex Mix")
+domestic_longhair_breeds <- c("Domestic Longhair","Domestic Longhair Mix","Domestic Longhair/Domestic Longhair","Domestic Longhair/Persian","Domestic Longhair/Rex","Domestic Longhair/Russian Blue")
+domestic_medium_hair_breeds <- c("Domestic Medium Hair","Domestic Medium Hair Mix","Domestic Medium Hair/Maine Coon","Domestic Medium Hair/Manx","Domestic Medium Hair/Siamese")
+domestic_shorthair_breeds <-c("Domestic Shorthair","Domestic Shorthair Mix","Domestic Shorthair/Abyssinian","Domestic Shorthair/British Shorthair","Domestic Shorthair/Domestic Shorthair","Domestic Shorthair/Maine Coon","Domestic Shorthair/Manx","Domestic Shorthair/Siamese")
+himalayan_breeds <- c("Himalayan","Himalayan Mix")
+japanese_bobtail_breeds <- c("Japanese Bobtail Mix","Japanese Bobtail/American Curl Shorthair")
+maine_coon_breeds <- c("Maine Coon","Maine Coon Mix")
+manx_breeds <- c("Manx","Manx Mix","Manx/Domestic Longhair","Manx/Domestic Shorthair","Manx/Siamese")
+persian_breeds <- c("Persian","Persian Mix")
+ragdoll_breeds <- c("Ragdoll","Ragdoll Mix")
+russian_blue_breeds <- c("Russian Blue","Russian Blue Mix")
+scottish_fold_breeds <- c("Scottish Fold Mix","Scottish Fold/Domestic Shorthair")
+siamese_breeds <- c("Siamese","Siamese Mix","Siamese/Angora","Siamese/Domestic Shorthair","Siamese/Japanese Bobtail")
+snowshoe_breeds <- c("Snowshoe","Snowshoe Mix","Snowshoe/Domestic Shorthair","Snowshoe/Ragdoll")
+
+
+catbreed_counts_df <- catbreed_counts_df %>%
+  mutate(
+    CombinedCatBreed = case_when(
+      catbreed %in% american_curl_shorthair_breeds ~ "American Curl Shorthair Mix",
+      catbreed %in% angora_breeds ~ "Angora Mix",
+      catbreed %in% bengal_breeds ~ "Bengal Mix",
+      catbreed %in% british_shorthair_breeds ~ "British Shorthair Mix",
+      catbreed %in% devon_rex ~ "Devon Rex Mix",
+      catbreed %in% domestic_longhair_breeds ~ "Domestic Longhair Mix",
+      catbreed %in% domestic_medium_hair_breeds ~ "Domestic Medium Hair Mix",
+      catbreed %in% domestic_shorthair_breeds ~ "Domestic Shorthair Mix",
+      catbreed %in% himalayan_breeds ~ "Himalayan Mix",
+      catbreed %in% japanese_bobtail_breeds ~ "Japanese Bobtail Mix",
+      catbreed %in% maine_coon_breeds ~ "Maine Coon Mix",
+      catbreed %in% manx_breeds ~ "Manx Mix",
+      catbreed %in% persian_breeds ~ "Persian Mix",
+      catbreed %in% ragdoll_breeds ~ "Ragdoll Mix",
+      catbreed %in% russian_blue_breeds ~ "Russian Blue Mix",
+      catbreed %in% scottish_fold_breeds ~ "Scottish Fold Mix",
+      catbreed %in% siamese_breeds ~ "Siamese Mix",
+      catbreed %in% snowshoe_breeds ~ "Snowshoe Mix",
+      
+      TRUE ~ catbreed  # Keep the original breed for other breeds
+    )
+  )
+
+
+combined_cat_counts <- catbreed_counts_df %>%
+  group_by(CombinedCatBreed) %>%
+  summarize(CombinedCount = sum(count))
+
+print(combined_cat_counts)
+```
+
+```{r}
+library(dplyr)
+
+small_breeds <- c("American Curl Shorthair Mix","Japanese Bobtail Mix","Cornish Rex Mix","Balinese Mix","Munchkin Longhair Mix","Munchkin Shorthair Mix", "Devon Rex Mix","Havana Brown Mix","Javanese Mix")
+medium_breeds <- c("Abyssinian Mix","American Shorthair Mix","Russian Blue Mix","Ocicat Mix","Manx Mix","American Wirehair Mix","Chartreux Mix","Scottish Fold Mix","Siamese Mix","Balinese Mix","Sphynx","Angora Mix","Bombay Mix","Burmese","Cymric Mix","Domestic Longhair Mix","Domestic Shorthair Mix","Exotic Shorthair Mix","Himalayan Mix", "Oriental Sh Mix", "Persian Mix","Snowshoe Mix","Tonkinese Mix","Turkish Angora Mix")
+large_breeds <- c("Maine Coon Mix","Norwegian Forest Cat Mix","Bengal Mix","Ragdoll Mix","Birman Mix","British Shorthair Mix","Domestic Medium Hair Mix","Pixiebob Shorthair Mix","Turkish Van Mix")
+
+combined_cat_counts <- combined_cat_counts %>%
+  mutate(
+    CatSize = case_when(
+      CombinedCatBreed %in% small_breeds ~ "Small Breeds",
+      CombinedCatBreed %in% medium_breeds ~ "Medium Breeds",
+      CombinedCatBreed %in% large_breeds ~ "Large Breeds",
+      
+      TRUE ~ CombinedCatBreed  # Keep the original breed for other breeds
+    )
+  )
+
+
+combined_size_counts <- combined_cat_counts %>%
+  group_by(CatSize) %>%
+  summarize(SizeCounts = sum(CombinedCount))
+
+print(combined_size_counts)
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(combined_size_counts, aes(x = CatSize, y = SizeCounts)) +
+  geom_bar(stat = "identity", fill = "plum", color = "black") +
+  xlab("Breed Size") +
+  ylab("Count") +
+  ggtitle("Breed Size Count") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+library(dplyr)
+
+american_curl_shorthair_breeds <- c("American Curl Shorthair","American Curl Shorthair Mix","American Curl Shorthair/Siamese")
+angora_breeds <- c("Angora Mix","Angora/Persian")
+bengal_breeds <- c("Bengal","Bengal Mix","Bengal/Domestic Shorthair")
+british_shorthair_breeds <- c("British Shorthair","British Shorthair Mix")
+devon_rex <- c("Devon Rex","Devon Rex Mix")
+domestic_longhair_breeds <- c("Domestic Longhair","Domestic Longhair Mix","Domestic Longhair/Domestic Longhair","Domestic Longhair/Persian","Domestic Longhair/Rex","Domestic Longhair/Russian Blue")
+domestic_medium_hair_breeds <- c("Domestic Medium Hair","Domestic Medium Hair Mix","Domestic Medium Hair/Maine Coon","Domestic Medium Hair/Manx","Domestic Medium Hair/Siamese")
+domestic_shorthair_breeds <-c("Domestic Shorthair","Domestic Shorthair Mix","Domestic Shorthair/Abyssinian","Domestic Shorthair/British Shorthair","Domestic Shorthair/Domestic Shorthair","Domestic Shorthair/Maine Coon","Domestic Shorthair/Manx","Domestic Shorthair/Siamese")
+himalayan_breeds <- c("Himalayan","Himalayan Mix")
+japanese_bobtail_breeds <- c("Japanese Bobtail Mix","Japanese Bobtail/American Curl Shorthair")
+maine_coon_breeds <- c("Maine Coon","Maine Coon Mix")
+manx_breeds <- c("Manx","Manx Mix","Manx/Domestic Longhair","Manx/Domestic Shorthair","Manx/Siamese")
+persian_breeds <- c("Persian","Persian Mix")
+ragdoll_breeds <- c("Ragdoll","Ragdoll Mix")
+russian_blue_breeds <- c("Russian Blue","Russian Blue Mix")
+scottish_fold_breeds <- c("Scottish Fold Mix","Scottish Fold/Domestic Shorthair")
+siamese_breeds <- c("Siamese","Siamese Mix","Siamese/Angora","Siamese/Domestic Shorthair","Siamese/Japanese Bobtail")
+snowshoe_breeds <- c("Snowshoe","Snowshoe Mix","Snowshoe/Domestic Shorthair","Snowshoe/Ragdoll")
+
+
+catdata <- catdata %>%
+  mutate(
+    CombinedCatBreed = case_when(
+      breed %in% american_curl_shorthair_breeds ~ "American Curl Shorthair Mix",
+      breed %in% angora_breeds ~ "Angora Mix",
+      breed %in% bengal_breeds ~ "Bengal Mix",
+      breed %in% british_shorthair_breeds ~ "British Shorthair Mix",
+      breed %in% devon_rex ~ "Devon Rex Mix",
+      breed %in% domestic_longhair_breeds ~ "Domestic Longhair Mix",
+      breed %in% domestic_medium_hair_breeds ~ "Domestic Medium Hair Mix",
+      breed %in% domestic_shorthair_breeds ~ "Domestic Shorthair Mix",
+      breed %in% himalayan_breeds ~ "Himalayan Mix",
+      breed %in% japanese_bobtail_breeds ~ "Japanese Bobtail Mix",
+      breed %in% maine_coon_breeds ~ "Maine Coon Mix",
+      breed %in% manx_breeds ~ "Manx Mix",
+      breed %in% persian_breeds ~ "Persian Mix",
+      breed %in% ragdoll_breeds ~ "Ragdoll Mix",
+      breed %in% russian_blue_breeds ~ "Russian Blue Mix",
+      breed %in% scottish_fold_breeds ~ "Scottish Fold Mix",
+      breed %in% siamese_breeds ~ "Siamese Mix",
+      breed %in% snowshoe_breeds ~ "Snowshoe Mix",
+      
+      TRUE ~ breed  # Keep the original breed for other breeds
+    )
+  )
+
+
+combined_cat_counts2 <- catdata %>%
+  group_by(CombinedCatBreed) %>%
+  summarize(CombinedCount = sum(count))
+
+print(combined_cat_counts2)
+```
+
+```{r}
+library(dplyr)
+
+small_breeds <- c("American Curl Shorthair Mix","Japanese Bobtail Mix","Cornish Rex Mix","Balinese Mix","Munchkin Longhair Mix","Munchkin Shorthair Mix", "Devon Rex Mix","Havana Brown Mix","Javanese Mix")
+medium_breeds <- c("Abyssinian Mix","American Shorthair Mix","Russian Blue Mix","Ocicat Mix","Manx Mix","American Wirehair Mix","Chartreux Mix","Scottish Fold Mix","Siamese Mix","Balinese Mix","Sphynx","Angora Mix","Bombay Mix","Burmese","Cymric Mix","Domestic Longhair Mix","Domestic Shorthair Mix","Exotic Shorthair Mix","Himalayan Mix", "Oriental Sh Mix", "Persian Mix","Snowshoe Mix","Tonkinese Mix","Turkish Angora Mix")
+large_breeds <- c("Maine Coon Mix","Norwegian Forest Cat Mix","Bengal Mix","Ragdoll Mix","Birman Mix","British Shorthair Mix","Domestic Medium Hair Mix","Pixiebob Shorthair Mix","Turkish Van Mix")
+
+catdata <- catdata %>%
+  mutate(
+    CatSize = case_when(
+      CombinedCatBreed %in% small_breeds ~ "Small Breeds",
+      CombinedCatBreed %in% medium_breeds ~ "Medium Breeds",
+      CombinedCatBreed %in% large_breeds ~ "Large Breeds",
+      
+      TRUE ~ CombinedCatBreed  # Keep the original breed for other breeds
+    )
+  )
+
+
+combined_size_counts2 <- catdata %>%
+  group_by(CatSize) %>%
+  summarize(SizeCounts = sum(count))
+
+print(combined_size_counts)
+```
+
+```{r}
+library(dplyr)
+
+small_breeds <- c("American Curl Shorthair","Japanese Bobtail Mix","Cornish Rex","Balinese Mix","Munchkin Longhair","Munchkin Shorthair", "Devon Rex Mix","Havana Brown Mix","Javanese Mix")
+medium_breeds <- c("Abyssinian Mix","American Shorthair Mix","Russian Blue Mix","Ocicat Mix","Manx Mix","American Wirehair Mix","Chartreux","Scottish Fold Mix","Siamese Mix","Balinese Mix","Sphynx","Angora Mix","Bombay Mix","Burmese","Cymric Mix","Domestic Longhair Mix","Domestic Shorthair Mix","Exotic Shorthair Mix","Himalayan Mix", "Oriental Sh Mix", "Persian Mix","Snowshoe Mix","Tonkinese Mix","Turkish Angora Mix")
+large_breeds <- c("Maine Coon Mix","Norwegian Forest Cat Mix","Bengal Mix","Ragdoll Mix","Birman Mix","British Shorthair","Domestic Medium Hair Mix","Pixiebob Shorthair Mix","Turkish Van Mix")
+
+catlos <- catlos %>%
+  mutate(
+    CatSize = case_when(
+      Breed %in% small_breeds ~ "Small Breeds",
+      Breed %in% medium_breeds ~ "Medium Breeds",
+      Breed %in% large_breeds ~ "Large Breeds",
+      
+      TRUE ~ Breed  # Keep the original breed for other breeds
+    )
+  )
+
+
+combined_size_counts3 <- catlos %>%
+  group_by(CatSize) %>%
+  summarize(AvgLos = sum(avg_los))
+
+print(combined_size_counts3)
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(combined_size_counts3, aes(x = CatSize, y = AvgLos)) +
+  geom_bar(stat = "identity", fill = "lightskyblue1", color = "blue4") +
+  xlab("Cat Breed Size") +
+  ylab("Average Length of Stay (days)") +
+  ggtitle("Cat Breed Size by Length of Stay") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Medium Sized Breeds are the most common, but they also have the longest average length of stay.
+
+When factoring in how much it costs to feed and upkeep with different types of cats based on their different characteristics, such as size, if they are spayed/neutered, age, etc., as well as the adoption rates and length of stay of those animal types, decisions can be more efficiently made about what animals to most urgently promote.
+
+Example:
+
+Avg. Cost to Feed Large Cat Breed Per Day:
+
+Dry Food: \$.30-.60
+
+Wet Food: \$.60-\$2.50
+
+Avg. Cost to Feed Medium Cat Breed Per Day:
+
+Dry Food: .20-.40
+
+Wet Food: .50-2.00
+
+Avg. Cost to Feed Small Cat Breed Per Day:
+
+Dry Food: .15-.35
+
+Wet Food: .40-1.50
+
+```{r}
+catoutcome_counts <- table(catdata$outcome_type)
+
+catoutcome_counts_df <- data.frame(
+  catoutcome = names(catoutcome_counts),
+  count = as.vector(catoutcome_counts)
+)
+```
+
+```{r}
+ggplot(catoutcome_counts_df, aes(x = "", y = count, fill = catoutcome)) +
+  geom_bar(stat = "identity") +
+  coord_polar(theta = "y") +
+  labs(title = "Outcome Type Distribution", fill = "Outcome Type") +
+  theme_minimal()
+```
+
+```{r}
+catoutcome_counts_df$Percentage <- (catoutcome_counts_df$count / sum(catoutcome_counts_df$count)) * 100
+```
+
+```{r}
+ggplot(catoutcome_counts_df, aes(x = "", y = count, fill = catoutcome)) +
+  geom_bar(stat = "identity") +
+  coord_polar(theta = "y") +
+  labs(
+    title = "Outcome Type Distribution",
+    fill = "Outcome Type",
+    caption = "Percentages are rounded to one decimal place"
+  ) +
+  geom_text(aes(label = paste(sprintf("%.1f%%", Percentage)), x = 1.2), position = position_stack(vjust = 0.5)) +
+  theme_minimal()
+```
+
+Less than half of cats entering the shelter are ever adopted out of that shelter.
+
+```{r}
+catlos2 <- read.csv("catlos2.csv")
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(catlos2, aes(x = age_group, y = avglos)) +
+  geom_bar(stat = "identity", fill = "lightskyblue1", color = "blue4") +
+  xlab("Cat Age Group (Years)") +
+  ylab("Average Length of Stay (days)") +
+  ggtitle("Cat Age Group by Length of Stay") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+ggplot(catlos2, aes(x = age_group, y = adoptionrate)) +
+  geom_bar(stat = "identity", fill = "lightskyblue1", color = "blue4") +
+  xlab("Cat Age Group (Years)") +
+  ylab("Adoption Rate") +
+  ggtitle("Cat Age Group by Adoption Rate") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+library(dplyr)
+catadoptions <- catdata %>%
+  filter(catdata$outcome_type == "Adoption")
+```
+
+```{r}
+sexadopted_counts <- table(catadoptions$sex_upon_outcome)
+
+sexadopted_counts_df <- data.frame(
+  sexoutcome = names(sexadopted_counts),
+  count = as.vector(sexadopted_counts)
+)
+ggplot(sexadopted_counts_df, aes(x = "", y = count, fill = sexoutcome)) +
+  geom_bar(stat = "identity") +
+  coord_polar(theta = "y") +
+  labs(title = "Sex Outcome Type Distribution", fill = "Sex Type") +
+  theme_minimal()
+```
+
+```{r}
+sexintake_counts <- table(catdata$sex_upon_intake)
+
+sexintake_counts_df <- data.frame(
+  sexintake = names(sexintake_counts),
+  count = as.vector(sexintake_counts)
+)
+
+ggplot(sexintake_counts_df, aes(x = "", y = count, fill = sexintake)) +
+  geom_bar(stat = "identity") +
+  coord_polar(theta = "y") +
+  labs(title = "Intake Sex Type Distribution", fill = "Sex Type") +
+  theme_minimal()
+```
+
+```{r}
+weekday_counts <- table(catadoptions$outcome_weekday)
+```
+
+```{r}
+weekday_counts_df <- data.frame(
+  weekday = names(weekday_counts),
+  count = as.vector(weekday_counts)
+)
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(weekday_counts_df, aes(x = weekday, y = count)) +
+  geom_bar(stat = "identity", fill = "lightskyblue1", color = "blue4") +
+  xlab("Day of the Week") +
+  ylab("Adoption Count") +
+  ggtitle("Adoptions by Weekday")
+```
+
+```{r}
+intakeweekday_counts <- table(catadoptions$intake_weekday)
+intakeweekday_counts_df <- data.frame(
+  intakeweekday = names(intakeweekday_counts),
+  count = as.vector(intakeweekday_counts)
+)
+library(ggplot2)
+
+ggplot(intakeweekday_counts_df, aes(x = intakeweekday, y = count)) +
+  geom_bar(stat = "identity", fill = "lightskyblue1", color = "blue4") +
+  xlab("Weekday") +
+  ylab("Intake Count") +
+  ggtitle("Intake by Weekday")
+```
+
+```{r}
+month_counts <- table(catadoptions$outcome_month)
+```
+
+```{r}
+month_counts_df <- data.frame(
+  month = names(month_counts),
+  count = as.vector(month_counts)
+)
+```
+
+```{r}
+month_counts_df <- data.frame(
+  month = names(month_counts),
+  count = as.vector(month_counts)
+)
+```
+
+```{r}
+intakemonth_counts <- table(catadoptions$intake_month)
+```
+
+```{r}
+intakemonth_counts_df <- data.frame(
+  intakemonth = names(intakemonth_counts),
+  count = as.vector(intakemonth_counts)
+)
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(intakemonth_counts_df, aes(x = intakemonth, y = count)) +
+  geom_bar(stat = "identity", fill = "lightpink2", color = "maroon") +
+  xlab("Month") +
+  ylab("Intake Count") +
+  ggtitle("Intake by Month")
+```
+
+```{r}
+catagerange <- c("Kitten","Cat")
+dryfoodprice <- c("3.34","1.99")
+wetfoodprice <- c("4.66","2.77")
+
+catagefooddata <- data.frame(CatAgeRange = catagerange, DryFoodPrice = dryfoodprice, WetFoodPrice = wetfoodprice)
+
+print(catagefooddata)
+```
+
+```{r}
+# Define UI for application
+ui <- fluidPage(
+  titlePanel("Interactive Quarto Document"),
+  sidebarLayout(
+    sidebarPanel(
+      fileInput("file", "Choose CSV File"),
+      checkboxInput("header", "Header", TRUE),
+      radioButtons("sep", "Separator", choices = c(Comma = ",", Semicolon = ";", Tab = "\t"), selected = ",")
+    ),
+    mainPanel(
+      tableOutput("table")
+    )
+  )
+)
+# Define server logic
+server <- function(input, output) {
+  data <- reactive({
+    req(input$file)
+    read.csv(input$file$datapath, header = input$header, sep = input$sep)
+  })
+
+  output$table <- renderTable({
+    data()
+  })
+}
+
+# Run the application
+shinyApp(ui, server)
+```
+
+```{r}
+ui <- fluidPage(
+  titlePanel("Cat Adoption and Intake Months"),
+  sidebarLayout(
+    sidebarPanel(
+      selectInput("breeds", "Select Breeds", choices = unique(catdata$CombinedCatBreed), multiple = TRUE)
+    ),
+    mainPanel(
+      plotOutput("adoptionPlot"),
+      plotOutput("intakePlot")
+    )
+  )
+)
+server <- function(input, output) {
+  # Filter data based on selected breeds
+  filtered_data <- reactive({
+    if (is.null(input$breeds))
+      return(NULL)
+    catdata %>%
+      filter(CombinedCatBreed %in% input$breeds)
+  })
+
+  # Plot adoption months
+  output$adoptionPlot <- renderPlot({
+    req(filtered_data())
+    ggplot(filtered_data(), aes(x = outcome_month)) +
+      geom_bar(stat = "count", fill = "skyblue") +
+      labs(title = "Adoption Months Distribution", x = "Month", y = "Count")
+  })
+
+  # Plot intake months
+  output$intakePlot <- renderPlot({
+    req(filtered_data())
+    ggplot(filtered_data(), aes(x = intake_month)) +
+      geom_bar(stat = "count", fill = "lightcoral") +
+      labs(title = "Intake Months Distribution", x = "Month", y = "Count")
+  })
+}
+
+# Create Shiny app
+shinyApp(ui = ui, server = server)
+```
+
+```{r}
+ui <- fluidPage(
+  titlePanel("Cat Adoption and Intake Colors"),
+  sidebarLayout(
+    sidebarPanel(
+      selectInput("Colors", "Select Colors", choices = unique(catdata$color), multiple = TRUE)
+    ),
+    mainPanel(
+      plotOutput("adoptionPlot"),
+      plotOutput("intakePlot")
+    )
+  )
+)
+server <- function(input, output) {
+  # Filter data based on selected colors
+  filtered_data <- reactive({
+    if (is.null(input$Colors))
+      return(NULL)
+    catdata %>%
+      filter(color %in% input$Colors)
+  })
+
+  # Plot adoption months
+  output$adoptionPlot <- renderPlot({
+    req(filtered_data())
+    ggplot(filtered_data(), aes(x = outcome_month)) +
+      geom_bar(stat = "count", fill = "skyblue") +
+      labs(title = "Adoption Months Distribution", x = "Month", y = "Count")
+  })
+
+  # Plot intake months
+  output$intakePlot <- renderPlot({
+    req(filtered_data())
+    ggplot(filtered_data(), aes(x = intake_month)) +
+      geom_bar(stat = "count", fill = "lightcoral") +
+      labs(title = "Intake Months Distribution", x = "Month", y = "Count")
+  })
+}
+
+# Create Shiny app
+shinyApp(ui = ui, server = server)
+```
+
+```{r}
+library(shiny)
+library(ggplot2)
+
+
+ui <- fluidPage(
+  titlePanel("Interactive Breed Chart"),
+
+  sidebarLayout(
+    sidebarPanel(
+      checkboxGroupInput("breed_options", "Select Breeds", choices = unique(catlos$Breed))
+    ),
+    mainPanel(
+      plotOutput("barChart")
+   )
+  )
+)
+
+server <- function(input, output) {
+  output$barChart <- renderPlot({
+    # Filter data based on user selection
+    selected_breeds <- input$breed_options
+    filtered_data <- subset(catlos, Breed %in% selected_breeds)
+    
+    # Create an interactive bar chart with multiple bars
+    ggplot(filtered_data, aes(x = Breed, y = avg_los, fill = Breed)) +
+      geom_bar(stat = "identity") +
+      xlab("Mixed Breed") +
+      ylab("Average Length of Stay") +
+      ggtitle("Average Length of Stay by Mixed Breed")
+  })
+}
+
+shinyApp(ui = ui, server = server)
+#shinyApp(ui, server)
+#library(quarto)
+#quarto_publish_app(server = "shinyapps.io")
+#rsconnect::deployApp(appDir = "animalshelterwork.qmd")
+```
+
+```{r}
+library(shiny)
+library(ggplot2)
+
+
+ui <- fluidPage(
+  titlePanel("Interactive Age Chart"),
+
+  sidebarLayout(
+    sidebarPanel(
+      checkboxGroupInput("age_group_options", "Select Age Group", choices = unique(catlos2$age_group))
+    ),
+    mainPanel(
+      plotOutput("barChart")
+   )
+  )
+)
+
+server <- function(input, output) {
+  output$barChart <- renderPlot({
+    # Filter data based on user selection
+    selected_ages <- input$age_group_options
+    filtered_data <- subset(catlos2, age_group %in% selected_ages)
+    
+    # Create an interactive bar chart with multiple bars
+    ggplot(filtered_data, aes(x = age_group, y = avglos, fill = age_group)) +
+      geom_bar(stat = "identity") +
+      xlab("Age Group") +
+      ylab("Average Length of Stay") +
+      ggtitle("Average Length of Stay by Age Group")
+  })
+}
+
+shinyApp(ui = ui, server = server)
+#shinyApp(ui, server)
+#library(quarto)
+#quarto_publish_app(server = "shinyapps.io")
+#rsconnect::deployApp(appDir = "animalshelterwork.qmd"
+```
+
+```{r}
+ui <- fluidPage(
+  titlePanel("Cat Avg Length of Stay and Adoption Rates by Age Group"),
+  sidebarLayout(
+    sidebarPanel(
+      selectInput("Ages", "Select Ages", choices = unique(catlos2$age_group), multiple = TRUE)
+    ),
+    mainPanel(
+      plotOutput("avglosPlot"),
+      plotOutput("adoptionratePlot")
+    )
+  )
+)
+server <- function(input, output) {
+  # Filter data based on selected colors
+  filtered_data <- reactive({
+    if (is.null(input$Ages))
+      return(NULL)
+    catlos2 %>%
+      filter(age_group %in% input$Ages)
+  })
+
+  # Plot avglos
+  output$avglosPlot <- renderPlot({
+    req(filtered_data())
+    ggplot(filtered_data(), aes(x = avglos, y = age_group, fill = avglos)) +
+      geom_bar(stat = "identity", fill = "skyblue") +
+      labs(title = "Average Length of Stay Distribution", x = "Avg Los", y = "Age Group")
+  })
+
+  # Plot adoption rates
+  output$adoptionratePlot <- renderPlot({
+    req(filtered_data())
+    ggplot(filtered_data(), aes(x = adoptionrate, y = age_group, fill = adoptionrate)) +
+      geom_bar(stat = "identity", fill = "lightcoral") +
+      labs(title = "Adoption Rate Distribution", x = "Adoption Rate", y = "Age Group")
+  })
+}
+
+
+# Create Shiny app
+shinyApp(ui = ui, server = server)
+
+```
+
+```{r}
+
+catmonth_counts <- table(catadoptions$outcome_month)
+
+catmonth_counts_df <- data.frame(
+  month = names(catmonth_counts),
+  count = as.vector(catmonth_counts)
+)
+
+
+library(ggplot2)
+
+ggplot(catmonth_counts_df, aes(x = month, y = count)) +
+  geom_bar(stat = "identity", fill = "lightpink2", color = "maroon") +
+  xlab("Month") +
+  ylab("Adoption Count") +
+  ggtitle("Adoptions by Month")
+```
+
+```{r}
+catintakemonth_counts <- table(catdata$intake_month)
+
+catintakemonth_counts_df <- data.frame(
+  month = names(catintakemonth_counts),
+  count = as.vector(catintakemonth_counts)
+)
+
+
+library(ggplot2)
+
+ggplot(catintakemonth_counts_df, aes(x = month, y = count)) +
+  geom_bar(stat = "identity", fill = "lightpink2", color = "maroon") +
+  xlab("Month") +
+  ylab("Intake Count") +
+  ggtitle("Intake by Month")
+```
+
+```{r}
+#catadoptions
+
+
+catsexoutcome_counts <- table(catadoptions$sex_upon_outcome)
+
+catsexoutcome_counts_df <- data.frame(
+  catsexoutcome = names(catsexoutcome_counts),
+  count = as.vector(catsexoutcome_counts)
+)
+
+ggplot(catsexoutcome_counts_df, aes(x = "", y = count, fill = catsexoutcome)) +
+  geom_bar(stat = "identity") +
+  coord_polar(theta = "y") +
+  labs(title = "Outcome Type Distribution", fill = "Sex Outcome Type") +
+  theme_minimal()
+```
+
+```{r}
+catsexintake_counts <- table(catdata$sex_upon_intake)
+
+catsexintake_counts_df <- data.frame(
+  catsexintake = names(catsexintake_counts),
+  count = as.vector(catsexintake_counts)
+)
+
+ggplot(catsexintake_counts_df, aes(x = "", y = count, fill = catsexintake)) +
+  geom_bar(stat = "identity") +
+  coord_polar(theta = "y") +
+  labs(title = "Intake Type Distribution", fill = "Sex Intake Type") +
+  theme_minimal()
+```
+
+```{r}
+
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
