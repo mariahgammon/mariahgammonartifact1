@@ -8,7 +8,17 @@ The current state of research in data driven marketing in animal shelters is tha
 For now, I have been focusing on using R Studio & Quarto to analyze intake & outtake data in animal shelters into a Quarto Document.
 Quarto and R Studio are efficient ways to create graphs and trends in one, central location to then be able to analyze and tell a narrative throughout.
 
+# Current Demo
 The .qmd file is the code that I used to run the project in R Studio.
+
+The current demo file that I want to express is the catbreeddemo.qmd - the animalshelterproject.qmd is just work in progress things right now.
+
+The current catbreeddemo.qmd is:
+
+The project itself that I’ve been working on is an interactive document using R studio, using various aspects such as ggplot and shiny apps to focus on trends and animal characteristics. When rendered, it produces an HTML document that can include both static and interactive elements. What I have right now has progressed from previous demos because now the Shiny elements through the document are able to be interacted with when it’s rendered as opposed to it being strictly static as it was before and having to access the interactive elements elsewhere. I had to change it to runtime: Shiny to allow for this.
+
+The data used in the current examples shown in the figures below comes from publicly available data from the Austin Animal Center. However, the code used to create the document is provided and can easily be altered for individual use.
+
 
 # Technical Details
 
