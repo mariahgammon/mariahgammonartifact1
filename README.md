@@ -31,6 +31,11 @@ Give animal shelters aid in keeping, collecting, and analyzing data (as of now, 
 https://rpubs.com/mariahgammon/1098493 - this is the link to the current published website with the graphs & code
 If you follow to that page, a publicly available document with the graphs and trends based on the CSV file Animal Shelter Intake and Outcome data is available to view.
 
+() - The link to the current published website with the graphs and code.
+If you follow to that page, a publicly available document with the graphs, trends, and analysis based on the CSV file Animal Shelter Intake and Outcome data is available to do.
+
+However, there are also steps you can take if you want to be able to view and run the program locally.
+
 
 However, if you want to run it locally, you would need R Studio on your device.
 You would need to download libraries in the console:
