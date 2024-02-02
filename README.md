@@ -34,8 +34,19 @@ If you follow to that page, a publicly available document with the graphs and tr
 () - The link to the current published website with the graphs and code.
 If you follow to that page, a publicly available document with the graphs, trends, and analysis based on the CSV file Animal Shelter Intake and Outcome data is available to do.
 
-However, there are also steps you can take if you want to be able to view and run the program locally.
+However, there are also steps you can take if you want to be able to view and run the program locally on your device.
 
+This project was created using R Studio. R Studio can be downloaded on Windows, Mac OS, and Linux and requires a 64 bit operating system.
+It can be downloaded for free by searching it and clicking on the link to RStudio Desktop.
+
+Select the version that matches your computer's operating system.
+
+Over 12,000 packages are available to download for R and for your analysis purposes.
+The libraries that you would need to download in the console to perform my project are:
+library(ggplot)
+library(dplyr)
+library(shiny)
+library(quarto).
 
 However, if you want to run it locally, you would need R Studio on your device.
 You would need to download libraries in the console:
